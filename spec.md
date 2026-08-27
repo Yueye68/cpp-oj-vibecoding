@@ -404,7 +404,7 @@ CREATE TABLE submission_results (
 
 ### Phase 1: 基础设施
 
-- [ ] 项目工程化：CMake 构建配置
+- [x] 项目工程化：CMake 构建配置
 - [ ] 配置文件读取：config.yaml
 - [ ] 数据库连接池封装
 - [ ] 数据库 Schema 初始化脚本
