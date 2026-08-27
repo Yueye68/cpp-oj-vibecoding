@@ -80,6 +80,9 @@ target_link_libraries(oj_core
 add_executable(oj_server src/main.cpp)
 target_link_libraries(oj_server oj_core)
 
+enable_testing()
+add_subdirectory(tests/unit)
+
 install(TARGETS oj_server RUNTIME DESTINATION bin)
 install(DIRECTORY config/ DESTINATION etc/oj_server/config)
 install(DIRECTORY web/ DESTINATION share/oj_server/web)

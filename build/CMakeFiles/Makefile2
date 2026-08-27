@@ -65,16 +65,33 @@ CMAKE_BINARY_DIR = /home/yueye/my_dir/cpp-oj-vibecoding/build
 # The main recursive "all" target.
 all: CMakeFiles/oj_core.dir/all
 all: CMakeFiles/oj_server.dir/all
+all: tests/unit/all
 .PHONY : all
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: tests/unit/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/oj_core.dir/clean
 clean: CMakeFiles/oj_server.dir/clean
+clean: tests/unit/clean
 .PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory tests/unit
+
+# Recursive "all" directory target.
+tests/unit/all: tests/unit/CMakeFiles/test_config.dir/all
+.PHONY : tests/unit/all
+
+# Recursive "preinstall" directory target.
+tests/unit/preinstall:
+.PHONY : tests/unit/preinstall
+
+# Recursive "clean" directory target.
+tests/unit/clean: tests/unit/CMakeFiles/test_config.dir/clean
+.PHONY : tests/unit/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/oj_core.dir
@@ -127,6 +144,32 @@ oj_server: CMakeFiles/oj_server.dir/rule
 CMakeFiles/oj_server.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/oj_server.dir/build.make CMakeFiles/oj_server.dir/clean
 .PHONY : CMakeFiles/oj_server.dir/clean
+
+#=============================================================================
+# Target rules for target tests/unit/CMakeFiles/test_config.dir
+
+# All Build rule for target.
+tests/unit/CMakeFiles/test_config.dir/all: CMakeFiles/oj_core.dir/all
+	$(MAKE) $(MAKESILENT) -f tests/unit/CMakeFiles/test_config.dir/build.make tests/unit/CMakeFiles/test_config.dir/depend
+	$(MAKE) $(MAKESILENT) -f tests/unit/CMakeFiles/test_config.dir/build.make tests/unit/CMakeFiles/test_config.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/yueye/my_dir/cpp-oj-vibecoding/build/CMakeFiles --progress-num=20,21 "Built target test_config"
+.PHONY : tests/unit/CMakeFiles/test_config.dir/all
+
+# Build rule for subdir invocation for target.
+tests/unit/CMakeFiles/test_config.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yueye/my_dir/cpp-oj-vibecoding/build/CMakeFiles 19
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/unit/CMakeFiles/test_config.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/yueye/my_dir/cpp-oj-vibecoding/build/CMakeFiles 0
+.PHONY : tests/unit/CMakeFiles/test_config.dir/rule
+
+# Convenience name for target.
+test_config: tests/unit/CMakeFiles/test_config.dir/rule
+.PHONY : test_config
+
+# clean rule for target.
+tests/unit/CMakeFiles/test_config.dir/clean:
+	$(MAKE) $(MAKESILENT) -f tests/unit/CMakeFiles/test_config.dir/build.make tests/unit/CMakeFiles/test_config.dir/clean
+.PHONY : tests/unit/CMakeFiles/test_config.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

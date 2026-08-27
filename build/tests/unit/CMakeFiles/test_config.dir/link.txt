@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/test_config.dir/test_config.cpp.o -o ../../bin/test_config  ../../lib/liboj_core.a /usr/lib/x86_64-linux-gnu/libgtest_main.a -lpthread -lmysqlclient -lpthread /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so /usr/lib/x86_64-linux-gnu/libgtest.a 

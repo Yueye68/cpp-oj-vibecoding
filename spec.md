@@ -427,13 +427,13 @@ CREATE TABLE submission_results (
 
 ### Phase 1: 基础设施
 
-- [x] 项目工程化：CMake 构建配置 ✗
-- [x] 项目目录结构搭建 ✗
-- [x] 配置文件读取：config.yaml ✗
+- [x] 项目工程化：CMake 构建配置 
+- [x] 项目目录结构搭建 
+- [x] 配置文件读取：config.yaml 
 - [ ] 数据库连接池封装
-- [x] 数据库 Schema 初始化脚本 ✗
-- [ ] cpp-httplib 基础 HTTP 服务
-- [x] 日志的封装 ✗
+- [x] 数据库 Schema 初始化脚本 
+- [x] cpp-httplib 基础 HTTP 服务
+- [x] 日志的封装 
 
 ### Phase 2: 用户系统
 

@@ -65,6 +65,16 @@ CMAKE_BINARY_DIR = /home/yueye/my_dir/cpp-oj-vibecoding/build
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
@@ -186,6 +196,19 @@ oj_server: cmake_check_build_system
 oj_server/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/oj_server.dir/build.make CMakeFiles/oj_server.dir/build
 .PHONY : oj_server/fast
+
+#=============================================================================
+# Target rules for targets named test_config
+
+# Build rule for target.
+test_config: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_config
+.PHONY : test_config
+
+# fast build rule for target.
+test_config/fast:
+	$(MAKE) $(MAKESILENT) -f tests/unit/CMakeFiles/test_config.dir/build.make tests/unit/CMakeFiles/test_config.dir/build
+.PHONY : test_config/fast
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -607,8 +630,10 @@ help:
 	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... oj_core"
 	@echo "... oj_server"
+	@echo "... test_config"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

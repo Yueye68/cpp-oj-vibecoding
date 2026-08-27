@@ -30,6 +30,7 @@ class Config {
 public:
     static Config& instance();
 
+    void reset();
     bool load(const std::string& filepath);
     bool loadFromString(const std::string& content);
 

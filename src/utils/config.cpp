@@ -9,6 +9,12 @@ Config& Config::instance() {
     return instance;
 }
 
+void Config::reset() {
+    db_config_ = DatabaseConfig();
+    server_config_ = ServerConfig();
+    app_config_ = AppConfig();
+}
+
 bool Config::load(const std::string& filepath) {
     std::ifstream file(filepath);
     if (!file.is_open()) {
