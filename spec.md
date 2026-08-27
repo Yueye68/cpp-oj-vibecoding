@@ -431,6 +431,7 @@ CREATE TABLE submission_results (
 - [ ] 数据库连接池封装
 - [x] 数据库 Schema 初始化脚本
 - [x] cpp-httplib 基础 HTTP 服务
+- [ ] 日志的封装
 
 ### Phase 2: 用户系统
 
