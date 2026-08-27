@@ -430,7 +430,7 @@ CREATE TABLE submission_results (
 - [ ] 配置文件读取：config.yaml
 - [ ] 数据库连接池封装
 - [x] 数据库 Schema 初始化脚本
-- [ ] cpp-httplib 基础 HTTP 服务
+- [x] cpp-httplib 基础 HTTP 服务
 
 ### Phase 2: 用户系统
 
