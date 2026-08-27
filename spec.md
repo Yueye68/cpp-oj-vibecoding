@@ -328,74 +328,74 @@ CREATE TABLE submission_results (
 
 ```
 /home/yueye/my_dir/cpp-oj-vibecoding/
-├── SPEC.md
-├── README.md
-├── CMakeLists.txt
+├── SPEC.md                          # 项目规格说明书
+├── README.md                        # 项目说明文档
+├── CMakeLists.txt                   # CMake 构建配置文件
 ├── config/
-│   └── config.yaml
+│   └── config.yaml                  # 应用配置文件（数据库、服务器等配置）
 ├── database/
-│   └── schema.sql
-├── src/
-│   ├── main.cpp
-│   ├── server/
-│   │   ├── server.h
-│   │   ├── server.cpp
-│   │   ├── router/
-│   │   │   ├── router.h
-│   │   │   └── router.cpp
-│   │   ├── handlers/
-│   │   │   ├── auth_handler.h
-│   │   │   ├── auth_handler.cpp
-│   │   │   ├── problem_handler.h
-│   │   │   ├── problem_handler.cpp
-│   │   │   ├── submission_handler.h
-│   │   │   └── submission_handler.cpp
-│   │   └── middleware/
-│   │       ├── auth_middleware.h
-│   │       └── auth_middleware.cpp
-│   ├── models/
-│   │   ├── user.h
-│   │   ├── user.cpp
-│   │   ├── problem.h
-│   │   ├── problem.cpp
-│   │   ├── test_case.h
-│   │   ├── test_case.cpp
-│   │   ├── submission.h
-│   │   └── submission.cpp
-│   ├── services/
-│   │   ├── db_service.h
-│   │   ├── db_service.cpp
-│   │   ├── judge_service.h
-│   │   ├── judge_service.cpp
-│   │   └── cgroup_manager.h
-│   │   └── cgroup_manager.cpp
-│   └── utils/
-│       ├── config.h
-│       ├── config.cpp
-│       ├── password.h
-│       └── password.cpp
-├── web/
-│   ├── index.html
-│   ├── login.html
-│   ├── register.html
-│   ├── problems.html
-│   ├── problem.html
-│   ├── submissions.html
-│   ├── admin/
-│   │   ├── problems.html
-│   │   └── problem_edit.html
+│   └── schema.sql                   # MySQL 数据库初始化 SQL 脚本
+├── src/                             # 后端 C++ 源代码目录
+│   ├── main.cpp                     # 程序入口点
+│   ├── server/                      # HTTP 服务器模块
+│   │   ├── server.h                 # 服务器类声明
+│   │   ├── server.cpp               # 服务器类实现（启动、监听）
+│   │   ├── router/                  # 路由模块
+│   │   │   ├── router.h             # 路由类声明
+│   │   │   └── router.cpp           # 路由类实现（路径到处理函数的映射）
+│   │   ├── handlers/                # 请求处理器模块
+│   │   │   ├── auth_handler.h       # 认证相关请求处理声明（登录/注册/登出）
+│   │   │   ├── auth_handler.cpp     # 认证请求处理实现
+│   │   │   ├── problem_handler.h    # 题目相关请求处理声明
+│   │   │   ├── problem_handler.cpp  # 题目请求处理实现（CRUD）
+│   │   │   ├── submission_handler.h # 提交相关请求处理声明
+│   │   │   └── submission_handler.cpp # 提交请求处理实现
+│   │   └── middleware/               # 中间件模块
+│   │       ├── auth_middleware.h    # 认证中间件声明（登录状态校验）
+│   │       └── auth_middleware.cpp # 认证中间件实现
+│   ├── models/                      # 数据模型层（ORM）
+│   │   ├── user.h                   # 用户模型声明
+│   │   ├── user.cpp                 # 用户模型实现
+│   │   ├── problem.h                # 题目模型声明
+│   │   ├── problem.cpp              # 题目模型实现
+│   │   ├── test_case.h              # 测试用例模型声明
+│   │   ├── test_case.cpp            # 测试用例模型实现
+│   │   ├── submission.h             # 提交记录模型声明
+│   │   └── submission.cpp           # 提交记录模型实现
+│   ├── services/                    # 业务服务层
+│   │   ├── db_service.h             # 数据库服务声明（连接池、查询）
+│   │   ├── db_service.cpp           # 数据库服务实现
+│   │   ├── judge_service.h          # 评测服务声明（编译、执行、判定）
+│   │   ├── judge_service.cpp        # 评测服务实现
+│   │   └── cgroup_manager.h         # Cgroup 隔离管理器声明
+│   │   └── cgroup_manager.cpp        # Cgroup 隔离管理器实现（资源限制）
+│   └── utils/                       # 工具模块
+│       ├── config.h                 # 配置工具声明
+│       ├── config.cpp               # 配置工具实现（YAML 解析）
+│       ├── password.h               # 密码工具声明（bcrypt 加密）
+│       └── password.cpp             # 密码工具实现
+├── web/                             # 前端资源目录（原生 HTML/CSS/JS）
+│   ├── index.html                   # 首页（平台介绍）
+│   ├── login.html                   # 登录页
+│   ├── register.html                # 注册页
+│   ├── problems.html                # 题目列表页
+│   ├── problem.html                 # 题目详情页（编辑器、提交）
+│   ├── submissions.html             # 提交历史页
+│   ├── admin/                       # 管理后台页面
+│   │   ├── problems.html            # 管理员题目列表
+│   │   └── problem_edit.html        # 题目编辑/新增页
 │   ├── css/
-│   │   └── style.css
+│   │   └── style.css                # 全局样式表
 │   └── js/
-│       ├── api.js
-│       ├── auth.js
-│       ├── problems.js
-│       ├── submission.js
-│       └── editor.js
-├── test_cases/
-│   └── .gitkeep
-└── uploads/
-    └── .gitkeep
+│       ├── api.js                   # API 调用封装
+│       ├── auth.js                  # 认证状态管理
+│       ├── problems.js              # 题目列表/详情逻辑
+│       ├── submission.js            # 提交相关逻辑
+│       └── editor.js                # CodeMirror 编辑器集成
+├── test_cases/                      # 测试用例文件存储目录
+│   └── .gitkeep                     # 占位文件（保持目录结构）
+└── uploads/                         # 用户上传文件存储目录
+    └── .gitkeep                     # 占位文件（保持目录结构）
 ```
 
 ---
