@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/oj_server.dir/src/main.cpp.o -o bin/oj_server  lib/liboj_core.a -lmysqlclient /usr/lib/x86_64-linux-gnu/libssl.so /usr/lib/x86_64-linux-gnu/libcrypto.so -lpthread 
