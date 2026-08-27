@@ -21,6 +21,27 @@
 
 ---
 
+## 2.1 数据库配置
+
+| 配置项 | 值 |
+|--------|-----|
+| 数据库类型 | MySQL |
+| 主机 | localhost |
+| 端口 | 3306 |
+| 用户名 | root |
+| 密码 | (空) |
+| 数据库名 | oj_system |
+| 字符集 | utf8mb4 |
+| 排序规则 | utf8mb4_unicode_ci |
+
+**初始化命令**:
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS oj_system CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root oj_system < database/schema.sql
+```
+
+---
+
 ## 3. 功能需求
 
 ### 3.1 用户系统
@@ -407,7 +428,7 @@ CREATE TABLE submission_results (
 - [x] 项目工程化：CMake 构建配置
 - [ ] 配置文件读取：config.yaml
 - [ ] 数据库连接池封装
-- [ ] 数据库 Schema 初始化脚本
+- [x] 数据库 Schema 初始化脚本
 
 ### Phase 2: 用户系统
 
