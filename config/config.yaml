@@ -1,0 +1,18 @@
+database:
+  host: localhost
+  port: 3306
+  username: root
+  password: ""
+  name: oj_system
+  charset: utf8mb4
+  collation: utf8mb4_unicode_ci
+
+server:
+  host: 0.0.0.0
+  port: 8080
+
+app:
+  test_case_dir: ./test_cases
+  upload_dir: ./uploads
+  log_level: INFO
+  log_file: ./logs/app.log

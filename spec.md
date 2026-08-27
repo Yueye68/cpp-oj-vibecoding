@@ -394,7 +394,9 @@ CREATE TABLE submission_results (
 │       ├── config.h                 # 配置工具声明
 │       ├── config.cpp               # 配置工具实现（YAML 解析）
 │       ├── password.h               # 密码工具声明（bcrypt 加密）
-│       └── password.cpp             # 密码工具实现
+│       ├── password.cpp             # 密码工具实现
+│       ├── logger.h                 # 日志工具声明
+│       └── logger.cpp               # 日志工具实现
 ├── web/                             # 前端资源目录（原生 HTML/CSS/JS）
 │   ├── index.html                   # 首页（平台介绍）
 │   ├── login.html                   # 登录页
