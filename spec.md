@@ -383,6 +383,9 @@ CREATE TABLE submission_results (
 │   │   ├── test_case.cpp            # 测试用例模型实现
 │   │   ├── submission.h             # 提交记录模型声明
 │   │   └── submission.cpp           # 提交记录模型实现
+│   ├── db_pool/                     # 数据库连接池模块
+│   │   ├── connection_pool.h        # 连接池类声明
+│   │   └── connection_pool.cc       # 连接池类实现
 │   ├── services/                    # 业务服务层
 │   │   ├── db_service.h             # 数据库服务声明（连接池、查询）
 │   │   ├── db_service.cpp           # 数据库服务实现
@@ -415,10 +418,7 @@ CREATE TABLE submission_results (
 │       ├── problems.js              # 题目列表/详情逻辑
 │       ├── submission.js            # 提交相关逻辑
 │       └── editor.js                # CodeMirror 编辑器集成
-├── test_cases/                      # 测试用例文件存储目录
-│   └── .gitkeep                     # 占位文件（保持目录结构）
 └── uploads/                         # 用户上传文件存储目录
-    └── .gitkeep                     # 占位文件（保持目录结构）
 ```
 
 ---
@@ -430,7 +430,7 @@ CREATE TABLE submission_results (
 - [x] 项目工程化：CMake 构建配置 
 - [x] 项目目录结构搭建 
 - [x] 配置文件读取：config.yaml 
-- [ ] 数据库连接池封装
+- [ ] 数据库连接池封装（进行中）
 - [x] 数据库 Schema 初始化脚本 
 - [x] cpp-httplib 基础 HTTP 服务
 - [x] 日志的封装 

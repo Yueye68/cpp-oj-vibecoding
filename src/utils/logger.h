@@ -2,6 +2,8 @@
 
 #include <string>
 #include <source_location>
+#include <fstream>
+#include <mutex>
 
 enum class LogLevel {
     DEBUG,
@@ -31,9 +33,14 @@ public:
 
 private:
     Logger() = default;
-    ~Logger() = default;
+    ~Logger();
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
     void writeLog(LogLevel level, const std::string& formatted);
+
+    LogLevel minLevel_ = LogLevel::INFO;
+    std::ofstream fileStream_;
+    std::mutex mutex_;
+    bool fileEnabled_ = false;
 };

@@ -32,6 +32,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/server/middleware
     ${CMAKE_SOURCE_DIR}/src/models
     ${CMAKE_SOURCE_DIR}/src/services
+    ${CMAKE_SOURCE_DIR}/src/db_pool
     ${MYSQL_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIR}
 )
@@ -55,6 +56,10 @@ set(SERVICES_SOURCES
     src/services/cgroup_manager.cpp
 )
 
+set(DB_POOL_SOURCES
+    src/db_pool/connection_pool.cc
+)
+
 set(SERVER_SOURCES
     src/server/server.cpp
     src/server/router/router.cpp
@@ -68,6 +73,7 @@ add_library(oj_core STATIC
     ${UTILS_SOURCES}
     ${MODELS_SOURCES}
     ${SERVICES_SOURCES}
+    ${DB_POOL_SOURCES}
     ${SERVER_SOURCES}
 )
 

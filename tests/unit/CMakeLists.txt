@@ -9,6 +9,7 @@ find_package(GTest REQUIRED)
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/utils
+    ${CMAKE_SOURCE_DIR}/src/db_pool
 )
 
 add_executable(test_config test_config.cpp)
@@ -18,3 +19,19 @@ target_link_libraries(test_config
     pthread
 )
 gtest_discover_tests(test_config)
+
+add_executable(test_logger test_logger.cpp)
+target_link_libraries(test_logger
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_logger)
+
+add_executable(test_connection_pool test_connection_pool.cpp)
+target_link_libraries(test_connection_pool
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_connection_pool)

@@ -9,8 +9,21 @@ Logger& Logger::instance() {
     return instance;
 }
 
+Logger::~Logger() {
+    if (fileStream_.is_open()) {
+        fileStream_.flush();
+        fileStream_.close();
+    }
+}
+
 void Logger::log(LogLevel level, const std::string& message,
                  const std::source_location& loc) {
+    if (level < minLevel_) {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(mutex_);
+
     std::ostringstream oss;
     auto now = std::chrono::system_clock::now();
     auto time_t = std::chrono::system_clock::to_time_t(now);
@@ -40,6 +53,10 @@ void Logger::log(LogLevel level, const std::string& message,
 
 void Logger::writeLog(LogLevel level, const std::string& formatted) {
     std::cout << formatted << std::endl;
+    if (fileEnabled_ && fileStream_.is_open()) {
+        fileStream_ << formatted << std::endl;
+        fileStream_.flush();
+    }
 }
 
 void Logger::debug(const std::string& message, const std::source_location& loc) {
@@ -59,7 +76,16 @@ void Logger::error(const std::string& message, const std::source_location& loc) 
 }
 
 void Logger::setLevel(LogLevel level) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    minLevel_ = level;
 }
 
 void Logger::setFile(const std::string& filepath) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (fileStream_.is_open()) {
+        fileStream_.flush();
+        fileStream_.close();
+    }
+    fileStream_.open(filepath, std::ios::app);
+    fileEnabled_ = fileStream_.is_open();
 }
