@@ -1,5 +1,0 @@
-if(EXISTS "/home/yueye/my_dir/cpp-oj-vibecoding/build/tests/unit/test_config[1]_tests.cmake")
-  include("/home/yueye/my_dir/cpp-oj-vibecoding/build/tests/unit/test_config[1]_tests.cmake")
-else()
-  add_test(test_config_NOT_BUILT test_config_NOT_BUILT)
-endif()

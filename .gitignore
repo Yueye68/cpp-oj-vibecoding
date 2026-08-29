@@ -1,1 +1,16 @@
+# 编译目录
 build/
+cmake-build-*/
+.cache/
+
+# clangd
+compile_commands.json
+
+# vim临时文件
+*.swp
+*.~
+
+# 可执行文件
+oj_server
+*.o
+*.a
