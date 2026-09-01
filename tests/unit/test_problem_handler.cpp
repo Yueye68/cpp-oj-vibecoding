@@ -5,11 +5,9 @@
 #include "models/user.h"
 #include "db_pool/connection_pool.h"
 #include "utils/config.h"
+#include "utils/session.h"
 #include "utils/json.h"
 #include <iostream>
-
-extern std::string createSession(const User& user);
-extern void destroySession(const std::string& token);
 
 class ProblemHandlerTest : public ::testing::Test {
 protected:
@@ -85,18 +83,18 @@ protected:
         adminUser.id = adminId;
         adminUser.username = "admin_test";
         adminUser.role = UserRole::Admin;
-        adminToken = createSession(adminUser);
+        adminToken = SessionManager::instance().createSession(adminUser);
 
         User normalUser;
         normalUser.id = userId;
         normalUser.username = "user_test";
         normalUser.role = UserRole::User;
-        userToken = createSession(normalUser);
+        userToken = SessionManager::instance().createSession(normalUser);
     }
 
     void TearDown() override {
-        if (!adminToken.empty()) destroySession(adminToken);
-        if (!userToken.empty()) destroySession(userToken);
+        if (!adminToken.empty()) SessionManager::instance().destroySession(adminToken);
+        if (!userToken.empty()) SessionManager::instance().destroySession(userToken);
 
         cleanTable("submission_results");
         cleanTable("submissions");

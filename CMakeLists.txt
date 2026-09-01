@@ -41,6 +41,7 @@ set(UTILS_SOURCES
     src/utils/config.cpp
     src/utils/password.cpp
     src/utils/logger.cpp
+    src/utils/session.cpp
 )
 
 set(MODELS_SOURCES

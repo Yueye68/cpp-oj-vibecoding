@@ -2,14 +2,11 @@
 #include "auth_middleware.h"
 #include "logger.h"
 #include "password.h"
+#include "session.h"
 #include "user.h"
 #include "../models/user.h"
 #include "json.h"
 #include <sstream>
-
-extern std::string createSession(const User& user);
-extern void destroySession(const std::string& token);
-extern std::string getSessionToken(const httplib::Request& req);
 
 static bool parseJson(const std::string& body, Json::Value& json) {
     std::istringstream iss(body);
@@ -98,7 +95,7 @@ void handleLogin(const httplib::Request& req, httplib::Response& res) {
         return;
     }
 
-    std::string token = createSession(user);
+    std::string token = SessionManager::instance().createSession(user);
     Logger::instance().info("User logged in: " + username);
 
     Json::Value response;
@@ -114,7 +111,7 @@ void handleLogin(const httplib::Request& req, httplib::Response& res) {
 void handleLogout(const httplib::Request& req, httplib::Response& res) {
     std::string token = getSessionToken(req);
     if (!token.empty()) {
-        destroySession(token);
+        SessionManager::instance().destroySession(token);
     }
 
     Logger::instance().info("User logged out");

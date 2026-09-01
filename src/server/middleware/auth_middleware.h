@@ -15,6 +15,4 @@ public:
     static bool requireAdmin(const httplib::Request& req, httplib::Response& res);
 };
 
-std::string createSession(const User& user);
-void destroySession(const std::string& token);
 std::string getSessionToken(const httplib::Request& req);

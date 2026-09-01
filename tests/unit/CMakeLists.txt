@@ -86,4 +86,12 @@ target_link_libraries(test_cgroup_manager
 )
 gtest_discover_tests(test_cgroup_manager)
 
+add_executable(test_session test_session.cpp)
+target_link_libraries(test_session
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_session)
+
 gtest_discover_tests(test_models_db)

@@ -1,20 +1,7 @@
 #include "auth_middleware.h"
 #include "logger.h"
+#include "session.h"
 #include "../models/user.h"
-#include <unordered_map>
-#include <mutex>
-#include <random>
-#include <chrono>
-
-static std::unordered_map<std::string, User> g_sessions;
-static std::mutex g_sessions_mutex;
-static std::random_device g_rd;
-static std::mt19937_64 g_gen(g_rd());
-
-std::string generateSessionToken() {
-    std::uniform_int_distribution<long long> dist(0, 9223372036854775807LL);
-    return std::to_string(dist(g_gen));
-}
 
 std::string getSessionToken(const httplib::Request& req) {
     auto cookie_it = req.headers.find("Cookie");
@@ -41,13 +28,7 @@ std::optional<User> AuthMiddleware::getCurrentUser(const httplib::Request& req) 
     if (token.empty()) {
         return std::nullopt;
     }
-
-    std::lock_guard<std::mutex> lock(g_sessions_mutex);
-    auto it = g_sessions.find(token);
-    if (it == g_sessions.end()) {
-        return std::nullopt;
-    }
-    return it->second;
+    return SessionManager::instance().getUser(token);
 }
 
 bool AuthMiddleware::isAdmin(const httplib::Request& req) {
@@ -81,16 +62,4 @@ bool AuthMiddleware::requireAdmin(const httplib::Request& req, httplib::Response
         return false;
     }
     return true;
-}
-
-std::string createSession(const User& user) {
-    std::string token = generateSessionToken();
-    std::lock_guard<std::mutex> lock(g_sessions_mutex);
-    g_sessions[token] = user;
-    return token;
-}
-
-void destroySession(const std::string& token) {
-    std::lock_guard<std::mutex> lock(g_sessions_mutex);
-    g_sessions.erase(token);
 }
