@@ -94,4 +94,12 @@ target_link_libraries(test_session
 )
 gtest_discover_tests(test_session)
 
+add_executable(test_password test_password.cpp)
+target_link_libraries(test_password
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_password)
+
 gtest_discover_tests(test_models_db)

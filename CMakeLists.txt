@@ -86,6 +86,7 @@ target_link_libraries(oj_core
     OpenSSL::Crypto
     pthread
     jsoncpp
+    crypt
 )
 
 add_executable(oj_server src/main.cpp)

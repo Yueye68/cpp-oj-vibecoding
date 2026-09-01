@@ -1,63 +1,47 @@
 #include "password.h"
-#include <openssl/evp.h>
+#include <openssl/crypto.h>
 #include <openssl/rand.h>
-#include <openssl/kdf.h>
+#include <crypt.h>
 #include <sstream>
 #include <iomanip>
 #include <cstring>
+#include <errno.h>
 
 std::string PasswordUtil::hash(const std::string& password) {
-    unsigned char salt[16];
-    if (RAND_bytes(salt, sizeof(salt)) != 1) {
+    unsigned char random_bytes[16];
+    if (RAND_bytes(random_bytes, sizeof(random_bytes)) != 1) {
         return "";
     }
 
-    unsigned char hash[32];
-    PKCS5_PBKDF2_HMAC(password.c_str(), password.size(),
-                       salt, sizeof(salt),
-                       100000,
-                       EVP_sha256(),
-                       sizeof(hash),
-                       hash);
+    char salt_str[CRYPT_GENSALT_OUTPUT_SIZE];
+    char* gensalt_result = crypt_gensalt_rn("$2b$10$", 10, reinterpret_cast<const char*>(random_bytes), 16, salt_str, sizeof(salt_str));
+    if (gensalt_result == nullptr) {
+        return "";
+    }
 
-    std::ostringstream oss;
-    for (int i = 0; i < 16; ++i) {
-        oss << std::hex << std::setw(2) << std::setfill('0') << (int)salt[i];
+    struct crypt_data data;
+    memset(&data, 0, sizeof(data));
+
+    char* result = crypt_r(password.c_str(), gensalt_result, &data);
+    if (result == nullptr || result[0] == '*') {
+        return "";
     }
-    oss << "$";
-    for (int i = 0; i < 32; ++i) {
-        oss << std::hex << std::setw(2) << std::setfill('0') << (int)hash[i];
-    }
-    return oss.str();
+
+    return std::string(result);
 }
 
 bool PasswordUtil::verify(const std::string& password, const std::string& stored_hash) {
-    size_t dollar_pos = stored_hash.find('$');
-    if (dollar_pos == std::string::npos || dollar_pos != 32) {
+    if (stored_hash.empty() || stored_hash[0] == '*') {
         return false;
     }
 
-    std::string salt_hex = stored_hash.substr(0, dollar_pos);
-    std::string hash_hex = stored_hash.substr(dollar_pos + 1);
+    struct crypt_data data;
+    memset(&data, 0, sizeof(data));
 
-    unsigned char salt[16];
-    for (int i = 0; i < 16; ++i) {
-        std::string byte_str = salt_hex.substr(i * 2, 2);
-        salt[i] = (unsigned char)std::stoi(byte_str, nullptr, 16);
+    char* result = crypt_r(password.c_str(), stored_hash.c_str(), &data);
+    if (result == nullptr) {
+        return false;
     }
 
-    unsigned char expected_hash[32];
-    PKCS5_PBKDF2_HMAC(password.c_str(), password.size(),
-                       salt, sizeof(salt),
-                       100000,
-                       EVP_sha256(),
-                       sizeof(expected_hash),
-                       expected_hash);
-
-    std::ostringstream oss;
-    for (int i = 0; i < 32; ++i) {
-        oss << std::hex << std::setw(2) << std::setfill('0') << (int)expected_hash[i];
-    }
-
-    return oss.str() == hash_hex;
+    return strcmp(result, stored_hash.c_str()) == 0;
 }

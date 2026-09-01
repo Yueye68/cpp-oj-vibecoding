@@ -449,8 +449,8 @@ CREATE TABLE submission_results (
 
 ### Phase 2: 用户系统
 
-- [ ] 用户注册 API + 密码加密
-- [ ] 用户登录 API + Session 管理
+- [x] 用户注册 API + 密码加密
+- [x] 用户登录 API + Session 管理
 - [ ] 用户登出 API
 - [ ] 登录状态校验中间件
 - [ ] 前端登录/注册页面
