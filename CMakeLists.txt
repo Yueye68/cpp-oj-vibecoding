@@ -48,6 +48,7 @@ set(MODELS_SOURCES
     src/models/problem.cpp
     src/models/test_case.cpp
     src/models/submission.cpp
+    src/models/submission_result.cpp
 )
 
 set(SERVICES_SOURCES

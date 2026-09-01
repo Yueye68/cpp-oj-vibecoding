@@ -430,7 +430,7 @@ CREATE TABLE submission_results (
 - [x] 项目工程化：CMake 构建配置 
 - [x] 项目目录结构搭建 
 - [x] 配置文件读取：config.yaml 
-- [ ] 数据库连接池封装（进行中）
+- [x] 数据库连接池封装（进行中）
 - [x] 数据库 Schema 初始化脚本 
 - [x] cpp-httplib 基础 HTTP 服务
 - [x] 日志的封装 
@@ -443,8 +443,10 @@ CREATE TABLE submission_results (
 - [ ] 登录状态校验中间件
 - [ ] 前端登录/注册页面
 
+
 ### Phase 3: 题目系统
 
+- [x] 数据模型映射（User/Problem/TestCase/Submission/SubmissionResult 模型，支持 CRUD 操作）
 - [ ] 题目 CRUD API
 - [ ] 题目列表分页/筛选
 - [ ] 题目详情 API
