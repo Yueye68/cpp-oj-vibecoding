@@ -326,6 +326,15 @@ std::vector<Problem> Problem::findAll(int page, int pageSize, const std::string&
         query << " AND title LIKE '%" << search << "%'";
     }
 
+    if (!tags.empty()) {
+        query << " AND (";
+        for (size_t i = 0; i < tags.size(); ++i) {
+            if (i > 0) query << " OR ";
+            query << "JSON_CONTAINS(tags, '\"' || '" << tags[i] << "' || '\"')";
+        }
+        query << ")";
+    }
+
     query << " ORDER BY id DESC LIMIT " << (page - 1) * pageSize << "," << pageSize;
 
     if (mysql_real_query(conn, query.str().c_str(), query.str().size()) != 0) {
@@ -377,6 +386,15 @@ int Problem::count(const std::string& difficulty, const std::vector<std::string>
 
     if (!search.empty()) {
         query << " AND title LIKE '%" << search << "%'";
+    }
+
+    if (!tags.empty()) {
+        query << " AND (";
+        for (size_t i = 0; i < tags.size(); ++i) {
+            if (i > 0) query << " OR ";
+            query << "JSON_CONTAINS(tags, '\"' || '" << tags[i] << "' || '\"')";
+        }
+        query << ")";
     }
 
     if (mysql_real_query(conn, query.str().c_str(), query.str().size()) != 0) {

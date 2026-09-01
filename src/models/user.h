@@ -23,6 +23,8 @@ struct User {
     bool create();
     bool update();
     bool remove();
+    bool loadFromDB(int id);
+    bool saveToDB();
 
     static std::optional<User> findById(int id);
     static std::optional<User> findByUsername(const std::string& username);

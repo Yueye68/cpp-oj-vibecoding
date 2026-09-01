@@ -447,9 +447,9 @@ CREATE TABLE submission_results (
 ### Phase 3: 题目系统
 
 - [x] 数据模型映射（User/Problem/TestCase/Submission/SubmissionResult 模型，支持 CRUD 操作）
+- [x] 题目详情 API
 - [ ] 题目 CRUD API
 - [ ] 题目列表分页/筛选
-- [ ] 题目详情 API
 - [ ] 题目管理后台页面
 - [ ] 题目新增/编辑页面
 
