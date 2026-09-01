@@ -417,8 +417,20 @@ CREATE TABLE submission_results (
 │       ├── auth.js                  # 认证状态管理
 │       ├── problems.js              # 题目列表/详情逻辑
 │       ├── submission.js            # 提交相关逻辑
-│       └── editor.js                # CodeMirror 编辑器集成
+│   └── editor.js                # CodeMirror 编辑器集成
 └── uploads/                         # 用户上传文件存储目录
+├── tests/
+│   └── unit/                            # 单元测试（gtest）
+│       ├── CMakeLists.txt
+│       ├── test_config.cpp
+│       ├── test_logger.cpp
+│       ├── test_connection_pool.cpp
+│       ├── test_models.cpp
+│       ├── test_models_db.cpp
+│       ├── test_problem_handler.cpp
+│       ├── test_testcase_handler.cpp
+│       ├── test_judge_service.cpp       # 评测服务测试
+│       └── test_cgroup_manager.cpp      # Cgroup 管理器测试
 ```
 
 ---
@@ -427,13 +439,13 @@ CREATE TABLE submission_results (
 
 ### Phase 1: 基础设施
 
-- [x] 项目工程化：CMake 构建配置 
-- [x] 项目目录结构搭建 
-- [x] 配置文件读取：config.yaml 
-- [x] 数据库连接池封装（进行中）
-- [x] 数据库 Schema 初始化脚本 
+- [x] 项目工程化：CMake 构建配置
+- [x] 项目目录结构搭建
+- [x] 配置文件读取：config.yaml
+- [x] 数据库连接池封装
+- [x] 数据库 Schema 初始化脚本
 - [x] cpp-httplib 基础 HTTP 服务
-- [x] 日志的封装 
+- [x] 日志的封装
 
 ### Phase 2: 用户系统
 
@@ -442,7 +454,6 @@ CREATE TABLE submission_results (
 - [ ] 用户登出 API
 - [ ] 登录状态校验中间件
 - [ ] 前端登录/注册页面
-
 
 ### Phase 3: 题目系统
 
@@ -462,11 +473,12 @@ CREATE TABLE submission_results (
 
 ### Phase 5: 评测系统
 
-- [ ] Cgroup 隔离管理器
-- [ ] 代码编译服务
-- [ ] 代码执行服务
-- [ ] 结果判定逻辑
-- [ ] 评测结果存储
+- [x] Cgroup 隔离管理器
+- [x] 代码编译服务
+- [x] 代码执行服务
+- [x] 结果判定逻辑
+- [x] 评测结果存储
+- [x] 单元测试（gtest）
 
 ### Phase 6: 提交系统
 
@@ -504,6 +516,7 @@ CREATE TABLE submission_results (
 | 代码提交 | 可提交代码并触发评测 |
 | 评测结果 | 返回正确/错误状态及详情 |
 | 题目管理 | 管理员可增删改查题目 |
+| 测试用例管理 | 管理员可上传/删除测试用例 |
 | 草稿保存 | 刷新页面代码不丢失 |
 
 ### 9.2 安全验收
@@ -514,6 +527,7 @@ CREATE TABLE submission_results (
 | 会话安全 | Cookie HttpOnly，防止 XSS |
 | 权限控制 | 普通用户无法访问管理 API |
 | 代码隔离 | 恶意代码无法影响宿主机 |
+| 测试用例隔离 | 用户无法访问测试用例文件 |
 
 ### 9.3 性能验收
 
@@ -534,3 +548,4 @@ CREATE TABLE submission_results (
 | 前端开发效率 | 原生 JS 维护成本高 | 复用统一工具函数和组件模式 |
 | 代码评测安全性 | 可能有漏网恶意代码 | 限制系统调用白名单（seccomp） |
 | 测试用例管理 | 手动上传繁琐 | 后续支持 JSON 批量导入 |
+| Cgroup 权限 | 需要 root 或 cgroup rw 权限 | 使用 rlimit 作为 fallback 方案 |

@@ -70,4 +70,20 @@ target_link_libraries(test_testcase_handler
 )
 gtest_discover_tests(test_testcase_handler)
 
+add_executable(test_judge_service test_judge_service.cpp)
+target_link_libraries(test_judge_service
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_judge_service)
+
+add_executable(test_cgroup_manager test_cgroup_manager.cpp)
+target_link_libraries(test_cgroup_manager
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_cgroup_manager)
+
 gtest_discover_tests(test_models_db)
