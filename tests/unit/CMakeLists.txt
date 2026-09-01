@@ -61,4 +61,13 @@ target_link_libraries(test_problem_handler
     pthread
 )
 gtest_discover_tests(test_problem_handler)
+
+add_executable(test_testcase_handler test_testcase_handler.cpp)
+target_link_libraries(test_testcase_handler
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_testcase_handler)
+
 gtest_discover_tests(test_models_db)

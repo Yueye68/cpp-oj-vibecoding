@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">新增题目 - C++ OJ 管理后台</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #555;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        .form-group small {
+            color: #888;
+            font-size: 12px;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 44px;
+        }
+        .tag-input-container .tag {
+            background: #3498db;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tag-input-container .tag-remove {
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+        .tag-input-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            min-width: 100px;
+            padding: 4px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        .error-message {
+            background: #ffebee;
+            color: #e74c3c;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .testcase-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .testcase-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .testcase-upload {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .testcase-upload .form-group {
+            margin-bottom: 0;
+            flex: 1;
+            min-width: 200px;
+        }
+        .testcase-upload label {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .testcase-upload input[type="file"] {
+            padding: 6px;
+        }
+        .testcase-upload .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .testcase-upload .checkbox-group input {
+            width: auto;
+        }
+        .testcase-list {
+            list-style: none;
+            padding: 0;
+        }
+        .testcase-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .testcase-list li .tc-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .testcase-list li .tc-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            background: #e8f5e9;
+            color: #27ae60;
+        }
+        .testcase-list li .btn-delete-tc {
+            padding: 4px 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .testcase-list li .btn-delete-tc:hover {
+            background: #c0392b;
+        }
+        .empty-tc {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">C++ OJ</a>
+            <span style="font-size: 14px; margin-left: 10px;">管理后台</span>
+        </div>
+        <div class="nav-links">
+            <a href="/">首页</a>
+            <a href="/problems.html">题目列表</a>
+            <a href="/admin/problems.html">题目管理</a>
+            <span id="nav-user"></span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="loading" class="loading">加载中...</div>
+        <div id="error" class="error-message" style="display: none;"></div>
+
+        <div class="form-container" id="form-container" style="display: none;">
+            <h2 id="form-title">新增题目</h2>
+
+            <form id="problem-form">
+                <div class="form-group">
+                    <label for="title">题目标题 *</label>
+                    <input type="text" id="title" name="title" required maxlength="200" placeholder="请输入题目标题">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">题目描述 *</label>
+                    <textarea id="description" name="description" required placeholder="支持 Markdown 格式"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="difficulty">难度等级 *</label>
+                        <select id="difficulty" name="difficulty" required>
+                            <option value="easy">简单</option>
+                            <option value="medium">中等</option>
+                            <option value="hard">困难</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="time_limit_ms">时间限制 (ms)</label>
+                        <input type="number" id="time_limit_ms" name="time_limit_ms" value="1000" min="100" max="60000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="memory_limit_mb">内存限制 (MB)</label>
+                        <input type="number" id="memory_limit_mb" name="memory_limit_mb" value="256" min="16" max="1024">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>分类标签</label>
+                    <div class="tag-input-container" id="tags-container">
+                        <input type="text" id="tag-input" placeholder="输入标签后按回车添加">
+                    </div>
+                    <small>支持的标签：算法、数据结构、字符串、数组、动态规划、图论、数学、搜索、排序、贪心</small>
+                </div>
+
+                <div class="form-actions">
+                    <a href="/admin/problems.html" class="btn btn-secondary">取消</a>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">保存</button>
+                </div>
+            </form>
+
+            <div class="testcase-section" id="testcase-section" style="display: none;">
+                <h3>测试用例管理</h3>
+
+                <div class="testcase-upload">
+                    <div class="form-group">
+                        <label for="input-file">输入文件</label>
+                        <input type="file" id="input-file" accept=".in,.txt,input/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="output-file">输出文件</label>
+                        <input type="file" id="output-file" accept=".out,.txt,output/*">
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="is-sample">
+                        <label for="is-sample">示例测试点</label>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="uploadTestCase()">上传</button>
+                </div>
+
+                <ul class="testcase-list" id="testcase-list">
+                    <li class="empty-tc">暂无测试用例</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        const ALL_TAGS = ['算法', '数据结构', '字符串', '数组', '动态规划', '图论', '数学', '搜索', '排序', '贪心'];
+        let currentTags = [];
+        let editProblemId = null;
+        let testCases = [];
+
+        function getProblemIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        async function initPage() {
+            const user = await api.auth.me();
+            if (!user || user.role !== 'admin') {
+                alert('您没有管理员权限');
+                window.location.href = '/';
+                return;
+            }
+
+            const navUser = document.getElementById('nav-user');
+            navUser.innerHTML = `<span>${user.username}</span> | <a href="/logout.html">登出</a>`;
+
+            editProblemId = getProblemIdFromUrl();
+
+            if (editProblemId) {
+                document.getElementById('page-title').textContent = '编辑题目 - C++ OJ 管理后台';
+                document.getElementById('form-title').textContent = '编辑题目';
+                document.getElementById('testcase-section').style.display = 'block';
+                await loadProblem(editProblemId);
+                await loadTestCases(editProblemId);
+            } else {
+                document.getElementById('page-title').textContent = '新增题目 - C++ OJ 管理后台';
+                document.getElementById('form-title').textContent = '新增题目';
+                initTagInput();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('form-container').style.display = 'block';
+            }
+        }
+
+        async function loadProblem(id) {
+            try {
+                const result = await api.problems.get(id);
+                if (result.error) {
+                    showError('加载题目失败: ' + result.error);
+                    return;
+                }
+
+                document.getElementById('title').value = result.title || '';
+                document.getElementById('description').value = result.description || '';
+                document.getElementById('difficulty').value = result.difficulty || 'easy';
+                document.getElementById('time_limit_ms').value = result.time_limit_ms || 1000;
+                document.getElementById('memory_limit_mb').value = result.memory_limit_mb || 256;
+
+                currentTags = result.tags || [];
+                initTagInput();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('form-container').style.display = 'block';
+            } catch (e) {
+                showError('加载题目失败: ' + e.message);
+            }
+        }
+
+        async function loadTestCases(problemId) {
+            try {
+                const result = await api.problems.getTestCases(problemId);
+                if (result.error) {
+                    console.error('加载测试用例失败:', result.error);
+                    return;
+                }
+                testCases = result.test_cases || [];
+                renderTestCases();
+            } catch (e) {
+                console.error('加载测试用例失败:', e);
+            }
+        }
+
+        function renderTestCases() {
+            const list = document.getElementById('testcase-list');
+            if (testCases.length === 0) {
+                list.innerHTML = '<li class="empty-tc">暂无测试用例</li>';
+                return;
+            }
+
+            list.innerHTML = testCases.map((tc, index) => `
+                <li>
+                    <div class="tc-info">
+                        <span>#${index + 1}</span>
+                        <span>ID: ${tc.id}</span>
+                        <span>分值: ${tc.score}</span>
+                        ${tc.is_sample ? '<span class="tc-badge">示例</span>' : ''}
+                    </div>
+                    <button class="btn-delete-tc" onclick="deleteTestCase(${tc.id})">删除</button>
+                </li>
+            `).join('');
+        }
+
+        async function uploadTestCase() {
+            if (!editProblemId) {
+                alert('请先保存题目后再上传测试用例');
+                return;
+            }
+
+            const inputFile = document.getElementById('input-file').files[0];
+            const outputFile = document.getElementById('output-file').files[0];
+            const isSample = document.getElementById('is-sample').checked;
+
+            if (!inputFile || !outputFile) {
+                alert('请选择输入和输出文件');
+                return;
+            }
+
+            try {
+                const result = await api.testCases.add(editProblemId, inputFile, outputFile, isSample);
+                if (result.error) {
+                    alert('上传失败: ' + result.error);
+                    return;
+                }
+
+                alert('上传成功');
+                document.getElementById('input-file').value = '';
+                document.getElementById('output-file').value = '';
+                document.getElementById('is-sample').checked = false;
+
+                await loadTestCases(editProblemId);
+            } catch (e) {
+                alert('上传失败: ' + e.message);
+            }
+        }
+
+        async function deleteTestCase(id) {
+            if (!confirm('确定要删除这个测试用例吗？')) {
+                return;
+            }
+
+            try {
+                const result = await api.testCases.delete(id);
+                if (result.error) {
+                    alert('删除失败: ' + result.error);
+                    return;
+                }
+
+                alert('删除成功');
+                await loadTestCases(editProblemId);
+            } catch (e) {
+                alert('删除失败: ' + e.message);
+            }
+        }
+
+        function initTagInput() {
+            const container = document.getElementById('tags-container');
+            const input = document.getElementById('tag-input');
+
+            container.innerHTML = '';
+            currentTags.forEach(tag => addTagElement(tag));
+            container.appendChild(input);
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const tag = input.value.trim();
+                    if (tag && !currentTags.includes(tag)) {
+                        currentTags.push(tag);
+                        addTagElement(tag);
+                    }
+                    input.value = '';
+                }
+            });
+
+            container.addEventListener('click', (e) => {
+                if (e.target.classList.contains('tag-remove')) {
+                    const tag = e.target.parentElement.dataset.tag;
+                    currentTags = currentTags.filter(t => t !== tag);
+                    e.target.parentElement.remove();
+                }
+            });
+        }
+
+        function addTagElement(tag) {
+            const container = document.getElementById('tags-container');
+            const input = document.getElementById('tag-input');
+
+            const tagEl = document.createElement('span');
+            tagEl.className = 'tag';
+            tagEl.dataset.tag = tag;
+            tagEl.innerHTML = `${tag}<span class="tag-remove">&times;</span>`;
+            container.insertBefore(tagEl, input);
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('error');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        document.getElementById('problem-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                title: document.getElementById('title').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                difficulty: document.getElementById('difficulty').value,
+                time_limit_ms: parseInt(document.getElementById('time_limit_ms').value) || 1000,
+                memory_limit_mb: parseInt(document.getElementById('memory_limit_mb').value) || 256,
+                tags: currentTags
+            };
+
+            if (!data.title) {
+                alert('请输入题目标题');
+                return;
+            }
+            if (!data.description) {
+                alert('请输入题目描述');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '保存中...';
+
+            try {
+                let result;
+                if (editProblemId) {
+                    result = await api.problems.update(editProblemId, data);
+                } else {
+                    result = await api.problems.create(data);
+                }
+
+                if (result.error) {
+                    alert('保存失败: ' + result.error);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '保存';
+                    return;
+                }
+
+                if (!editProblemId && result.id) {
+                    editProblemId = result.id;
+                    document.getElementById('testcase-section').style.display = 'block';
+                    history.replaceState(null, '', '?id=' + editProblemId);
+                }
+
+                alert(editProblemId ? '更新成功' : '创建成功');
+                if (!editProblemId) {
+                    window.location.href = '/admin/problems.html';
+                }
+            } catch (e) {
+                alert('保存失败: ' + e.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '保存';
+            }
+        });
+
+        initPage();
+    </script>
+</body>
+</html>

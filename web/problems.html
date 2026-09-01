@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题目列表 - C++ OJ</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">C++ OJ</a>
+        </div>
+        <div class="nav-links">
+            <a href="/">首页</a>
+            <a href="/problems.html" class="active">题目列表</a>
+            <a href="/submissions.html">提交历史</a>
+            <span id="nav-user"></span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>题目列表</h1>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label>难度:</label>
+                <div class="filter-buttons">
+                    <button class="difficulty-btn active" data-difficulty="" onclick="setDifficultyFilter('')">全部</button>
+                    <button class="difficulty-btn" data-difficulty="easy" onclick="setDifficultyFilter('easy')">简单</button>
+                    <button class="difficulty-btn" data-difficulty="medium" onclick="setDifficultyFilter('medium')">中等</button>
+                    <button class="difficulty-btn" data-difficulty="hard" onclick="setDifficultyFilter('hard')">困难</button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>分类:</label>
+                <div class="filter-buttons" id="tags-filter"></div>
+            </div>
+
+            <div class="filter-group search-group">
+                <label>搜索:</label>
+                <input type="text" id="search-input" placeholder="按标题搜索...">
+                <button onclick="handleSearch()">搜索</button>
+            </div>
+        </div>
+
+        <div id="problems-container"></div>
+        <div id="pagination" class="pagination"></div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/problems.js"></script>
+    <script>
+        async function initNav() {
+            const result = await api.auth.me();
+            const navUser = document.getElementById('nav-user');
+            if (result && result.username) {
+                navUser.innerHTML = `<span>${result.username}</span> | <a href="/logout.html">登出</a>`;
+            } else {
+                navUser.innerHTML = `<a href="/login.html">登录</a> | <a href="/register.html">注册</a>`;
+            }
+        }
+        initNav();
+        initProblemsPage();
+    </script>
+</body>
+</html>

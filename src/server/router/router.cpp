@@ -1,6 +1,7 @@
 #include "router.h"
 #include "handlers/auth_handler.h"
 #include "handlers/problem_handler.h"
+#include "handlers/testcase_handler.h"
 #include "logger.h"
 
 Router& Router::instance() {
@@ -12,6 +13,7 @@ void Router::registerHandlers() {
     Logger::instance().info("Registering route handlers");
     registerAuthRoutes();
     registerProblemRoutes();
+    registerTestCaseRoutes();
     Logger::instance().info("All routes registered");
 }
 
@@ -28,4 +30,10 @@ void Router::registerProblemRoutes() {
     svr_.Post("/api/problems", handleCreateProblem);
     svr_.Put("/api/problems/:id", handleUpdateProblem);
     svr_.Delete("/api/problems/:id", handleDeleteProblem);
+}
+
+void Router::registerTestCaseRoutes() {
+    svr_.Post("/api/problems/:id/testcases", handleAddTestCase);
+    svr_.Get("/api/problems/:id/testcases", handleGetTestCasesByProblem);
+    svr_.Delete("/api/testcases/:id", handleDeleteTestCase);
 }

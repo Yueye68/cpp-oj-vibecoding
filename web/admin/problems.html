@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题目管理 - C++ OJ</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .btn-edit:hover {
+            background: #d68910;
+        }
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+        .admin-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .admin-table th,
+        .admin-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .admin-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        .admin-table tr:last-child td {
+            border-bottom: none;
+        }
+        .admin-table tr:hover td {
+            background: #f8f9fa;
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">C++ OJ</a>
+            <span style="font-size: 14px; margin-left: 10px;">管理后台</span>
+        </div>
+        <div class="nav-links">
+            <a href="/">首页</a>
+            <a href="/problems.html">题目列表</a>
+            <a href="/admin/problems.html" class="active">题目管理</a>
+            <span id="nav-user"></span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="admin-header">
+            <h1>题目管理</h1>
+            <a href="/admin/problem_edit.html" class="btn-primary">+ 新增题目</a>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="搜索题目标题...">
+            <button class="btn-primary" onclick="handleSearch()">搜索</button>
+        </div>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>标题</th>
+                    <th>难度</th>
+                    <th>分类</th>
+                    <th>时间限制</th>
+                    <th>内存限制</th>
+                    <th>测试用例</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="problems-tbody">
+                <tr><td colspan="8" class="empty-state">加载中...</td></tr>
+            </tbody>
+        </table>
+
+        <div id="pagination" class="pagination"></div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script>
+        let currentPage = 1;
+        let searchKeyword = '';
+
+        async function loadProblems() {
+            const tbody = document.getElementById('problems-tbody');
+
+            try {
+                const result = await api.problems.list({
+                    page: currentPage,
+                    pageSize: 20,
+                    search: searchKeyword
+                });
+
+                if (result.error) {
+                    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">加载失败: ${result.error}</td></tr>`;
+                    return;
+                }
+
+                renderProblems(tbody, result.problems || []);
+                renderPagination(result.page, result.totalPages, result.total);
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="8" class="empty-state">加载失败: ${e.message}</td></tr>`;
+            }
+        }
+
+        function renderProblems(tbody, problems) {
+            if (problems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">暂无题目</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = problems.map(p => {
+                const difficultyText = { easy: '简单', medium: '中等', hard: '困难' }[p.difficulty] || p.difficulty;
+                const difficultyClass = 'difficulty-' + p.difficulty;
+                const tagsText = (p.tags || []).join(', ');
+
+                return `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td><a href="/problem.html?id=${p.id}">${escapeHtml(p.title)}</a></td>
+                        <td><span class="difficulty ${difficultyClass}">${difficultyText}</span></td>
+                        <td>${escapeHtml(tagsText)}</td>
+                        <td>${p.time_limit_ms}ms</td>
+                        <td>${p.memory_limit_mb}MB</td>
+                        <td>${p.test_case_count}</td>
+                        <td class="actions">
+                            <a href="/admin/problem_edit.html?id=${p.id}" class="btn-edit btn-sm">编辑</a>
+                            <button class="btn-delete btn-sm" onclick="deleteProblem(${p.id}, '${escapeHtml(p.title)}')">删除</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderPagination(page, totalPages, total) {
+            const container = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                container.innerHTML = `<div class="pagination-info">共 ${total} 题</div>`;
+                return;
+            }
+
+            let html = `<div class="pagination-info">共 ${total} 题，第 ${page}/${totalPages} 页</div>`;
+            html += '<div class="pagination-buttons">';
+
+            if (page > 1) {
+                html += `<button onclick="goToPage(${page - 1})">上一页</button>`;
+            }
+
+            const start = Math.max(1, page - 2);
+            const end = Math.min(totalPages, page + 2);
+
+            if (start > 1) {
+                html += `<button onclick="goToPage(1)">1</button>`;
+                if (start > 2) html += '<span class="pagination-ellipsis">...</span>';
+            }
+
+            for (let i = start; i <= end; i++) {
+                html += `<button onclick="goToPage(${i})" class="${i === page ? 'active' : ''}">${i}</button>`;
+            }
+
+            if (end < totalPages) {
+                if (end < totalPages - 1) html += '<span class="pagination-ellipsis">...</span>';
+                html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            if (page < totalPages) {
+                html += `<button onclick="goToPage(${page + 1})">下一页</button>`;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadProblems();
+            window.scrollTo(0, 0);
+        }
+
+        function handleSearch() {
+            searchKeyword = document.getElementById('search-input').value.trim();
+            currentPage = 1;
+            loadProblems();
+        }
+
+        async function deleteProblem(id, title) {
+            if (!confirm(`确定要删除题目 "${title}" 吗？\n此操作不可恢复。`)) {
+                return;
+            }
+
+            try {
+                const result = await api.problems.delete(id);
+                if (result.error) {
+                    alert('删除失败: ' + result.error);
+                    return;
+                }
+                alert('删除成功');
+                loadProblems();
+            } catch (e) {
+                alert('删除失败: ' + e.message);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function initNav() {
+            const result = await api.auth.me();
+            const navUser = document.getElementById('nav-user');
+            if (result && result.username) {
+                if (result.role !== 'admin') {
+                    alert('您没有管理员权限');
+                    window.location.href = '/';
+                    return;
+                }
+                navUser.innerHTML = `<span>${result.username}</span> | <a href="/logout.html">登出</a>`;
+            } else {
+                window.location.href = '/login.html';
+            }
+        }
+
+        initNav();
+        loadProblems();
+
+        document.getElementById('search-input').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') handleSearch();
+        });
+    </script>
+</body>
+</html>

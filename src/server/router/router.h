@@ -23,6 +23,7 @@ private:
 
     void registerAuthRoutes();
     void registerProblemRoutes();
+    void registerTestCaseRoutes();
 
     httplib::Server& svr_ = Server::instance().getServer();
 };
