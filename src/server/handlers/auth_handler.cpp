@@ -115,6 +115,7 @@ void handleLogout(const httplib::Request& req, httplib::Response& res) {
     }
 
     Logger::instance().info("User logged out");
+    res.status = 200;
     res.set_header("Set-Cookie", "session_token=; HttpOnly; Path=/; Max-Age=0");
     res.set_content("{\"message\": \"Logout successful\"}", "application/json");
 }

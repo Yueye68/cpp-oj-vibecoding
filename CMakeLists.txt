@@ -92,6 +92,9 @@ target_link_libraries(oj_core
 add_executable(oj_server src/main.cpp)
 target_link_libraries(oj_server oj_core)
 
+add_executable(create_admin src/tools/create_admin.cpp)
+target_link_libraries(create_admin oj_core)
+
 enable_testing()
 add_subdirectory(tests/unit)
 

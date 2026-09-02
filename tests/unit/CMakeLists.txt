@@ -102,4 +102,12 @@ target_link_libraries(test_password
 )
 gtest_discover_tests(test_password)
 
+add_executable(test_auth_handler test_auth_handler.cpp)
+target_link_libraries(test_auth_handler
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_auth_handler)
+
 gtest_discover_tests(test_models_db)

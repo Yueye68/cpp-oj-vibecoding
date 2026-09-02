@@ -451,7 +451,7 @@ CREATE TABLE submission_results (
 
 - [x] 用户注册 API + 密码加密
 - [x] 用户登录 API + Session 管理
-- [ ] 用户登出 API
+- [x] 用户登出 API
 - [ ] 登录状态校验中间件
 - [ ] 前端登录/注册页面
 
