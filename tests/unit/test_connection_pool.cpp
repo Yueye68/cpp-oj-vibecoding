@@ -24,7 +24,7 @@ TEST_F(ConnectionPoolTest, Init_ValidConfig) {
     dbConfig.host = "localhost";
     dbConfig.port = 3306;
     dbConfig.username = "root";
-    dbConfig.password = "";
+    dbConfig.password = "1";
     dbConfig.database = "oj_system";
     dbConfig.charset = "utf8mb4";
 
@@ -39,7 +39,7 @@ TEST_F(ConnectionPoolTest, Init_DefaultPoolSize) {
     dbConfig.host = "localhost";
     dbConfig.port = 3306;
     dbConfig.username = "root";
-    dbConfig.password = "";
+    dbConfig.password = "1";
     dbConfig.database = "oj_system";
 
     ConnectionPool::instance().init(dbConfig);
@@ -52,7 +52,7 @@ TEST_F(ConnectionPoolTest, Init_CalledTwice) {
     dbConfig.host = "localhost";
     dbConfig.port = 3306;
     dbConfig.username = "root";
-    dbConfig.password = "";
+    dbConfig.password = "1";
     dbConfig.database = "oj_system";
 
     ConnectionPool::instance().init(dbConfig, 3);
@@ -74,7 +74,7 @@ TEST_F(ConnectionPoolTest, GetAvailableCount_InitiallyZeroOrMore) {
     dbConfig.host = "localhost";
     dbConfig.port = 3306;
     dbConfig.username = "root";
-    dbConfig.password = "";
+    dbConfig.password = "1";
     dbConfig.database = "oj_system";
 
     ConnectionPool::instance().init(dbConfig, 3);
@@ -86,7 +86,13 @@ TEST_F(ConnectionPoolTest, GetAvailableCount_InitiallyZeroOrMore) {
 
 TEST_F(ConnectionPoolTest, GetConnection_BeforeInit) {
     ConnectionPool::instance().close();
-    ConnectionPool::instance().init(DatabaseConfig{}, 1);
+    DatabaseConfig dbConfig;
+    dbConfig.host = "localhost";
+    dbConfig.port = 3306;
+    dbConfig.username = "root";
+    dbConfig.password = "1";
+    dbConfig.database = "oj_system";
+    ConnectionPool::instance().init(dbConfig, 1);
     MYSQL* conn = ConnectionPool::instance().getConnection();
     if (conn) {
         ConnectionPool::instance().returnConnection(conn);
@@ -102,7 +108,7 @@ TEST_F(ConnectionPoolTest, PoolSize_AfterInit) {
     dbConfig.host = "localhost";
     dbConfig.port = 3306;
     dbConfig.username = "root";
-    dbConfig.password = "";
+    dbConfig.password = "1";
     dbConfig.database = "oj_system";
 
     ConnectionPool::instance().init(dbConfig, 7);

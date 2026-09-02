@@ -6,7 +6,7 @@
 #include "logger.h"
 
 int main(int argc, char* argv[]) {
-    std::string configPath = "config/config.yaml";
+    std::string configPath = "./config/config.yaml";
     if (argc > 1) {
         configPath = argv[1];
     }

@@ -16,7 +16,7 @@ protected:
         dbConfig.host = "localhost";
         dbConfig.port = 3306;
         dbConfig.username = "root";
-        dbConfig.password = "";
+        dbConfig.password = "1";
         dbConfig.database = "oj_system";
         dbConfig.charset = "utf8mb4";
 
