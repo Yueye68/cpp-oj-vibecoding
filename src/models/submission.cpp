@@ -183,6 +183,51 @@ std::optional<Submission> Submission::findById(int submissionId) {
     return sub;
 }
 
+std::vector<Submission> Submission::findAll(int page, int pageSize) {
+    std::vector<Submission> submissions;
+
+    MYSQL* conn = ConnectionPool::instance().getConnection();
+    if (!conn) {
+        Logger::instance().error("Failed to get database connection for Submission::findAll");
+        return submissions;
+    }
+
+    std::string query = "SELECT id, user_id, problem_id, code, language, status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions ORDER BY id DESC LIMIT " +
+                       std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
+
+    if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
+        Logger::instance().error("Failed to find all submissions: " + std::string(mysql_error(conn)));
+        ConnectionPool::instance().returnConnection(conn);
+        return submissions;
+    }
+
+    MYSQL_RES* result = mysql_store_result(conn);
+    if (!result) {
+        ConnectionPool::instance().returnConnection(conn);
+        return submissions;
+    }
+
+    MYSQL_ROW row;
+    while ((row = mysql_fetch_row(result)) != nullptr) {
+        Submission sub;
+        sub.id = std::stoi(row[0]);
+        sub.user_id = std::stoi(row[1]);
+        sub.problem_id = std::stoi(row[2]);
+        sub.code = row[3] ? row[3] : "";
+        sub.language = row[4] ? row[4] : "cpp";
+        sub.status = row[5] ? row[5] : "";
+        sub.error_detail = row[6] ? row[6] : "";
+        sub.execute_time_ms = row[7] ? std::stoi(row[7]) : 0;
+        sub.execute_memory_kb = row[8] ? std::stoi(row[8]) : 0;
+        sub.created_at = row[9] ? row[9] : "";
+        submissions.push_back(sub);
+    }
+
+    mysql_free_result(result);
+    ConnectionPool::instance().returnConnection(conn);
+    return submissions;
+}
+
 std::vector<Submission> Submission::findByUserId(int userId, int page, int pageSize) {
     std::vector<Submission> submissions;
 
@@ -271,6 +316,35 @@ std::vector<Submission> Submission::findByProblemId(int problemId, int page, int
     mysql_free_result(result);
     ConnectionPool::instance().returnConnection(conn);
     return submissions;
+}
+
+int Submission::countAll() {
+    MYSQL* conn = ConnectionPool::instance().getConnection();
+    if (!conn) {
+        Logger::instance().error("Failed to get database connection for Submission::countAll");
+        return 0;
+    }
+
+    std::string query = "SELECT COUNT(*) FROM submissions";
+
+    if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
+        Logger::instance().error("Failed to count all submissions: " + std::string(mysql_error(conn)));
+        ConnectionPool::instance().returnConnection(conn);
+        return 0;
+    }
+
+    MYSQL_RES* result = mysql_store_result(conn);
+    if (!result) {
+        ConnectionPool::instance().returnConnection(conn);
+        return 0;
+    }
+
+    MYSQL_ROW row = mysql_fetch_row(result);
+    int count = row ? std::stoi(row[0]) : 0;
+
+    mysql_free_result(result);
+    ConnectionPool::instance().returnConnection(conn);
+    return count;
 }
 
 int Submission::countByUserId(int userId) {

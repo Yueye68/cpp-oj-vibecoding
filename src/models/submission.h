@@ -25,8 +25,10 @@ struct Submission {
     bool saveToDB();
 
     static std::optional<Submission> findById(int id);
+    static std::vector<Submission> findAll(int page = 1, int pageSize = 20);
     static std::vector<Submission> findByUserId(int userId, int page = 1, int pageSize = 20);
     static std::vector<Submission> findByProblemId(int problemId, int page = 1, int pageSize = 20);
+    static int countAll();
     static int countByUserId(int userId);
     static int countByProblemId(int problemId);
 };
