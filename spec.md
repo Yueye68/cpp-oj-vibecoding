@@ -491,11 +491,11 @@ CREATE TABLE submission_results (
 ### Phase 7: 前端完善
 
 - [x] 前端登录/注册页面
-- [ ] 代码编辑器集成（CodeMirror）
-- [ ] 草稿自动保存（LocalStorage）
+- [x] 代码编辑器集成（CodeMirror）
+- [x] 草稿自动保存（LocalStorage）
 - [x] 题目列表页
 - [x] 题目详情页（编辑器 + 提交）
-- [ ] UI 样式美化
+- [x] UI 样式美化
 
 ### Phase 8: 集成与测试
 
