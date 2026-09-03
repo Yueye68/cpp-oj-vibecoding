@@ -14,3 +14,5 @@ compile_commands.json
 oj_server
 *.o
 *.a
+
+.opencode/

@@ -110,4 +110,12 @@ target_link_libraries(test_auth_handler
 )
 gtest_discover_tests(test_auth_handler)
 
+add_executable(test_auth_middleware test_auth_middleware.cpp)
+target_link_libraries(test_auth_middleware
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_auth_middleware)
+
 gtest_discover_tests(test_models_db)
