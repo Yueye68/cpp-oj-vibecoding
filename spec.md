@@ -452,8 +452,7 @@ CREATE TABLE submission_results (
 - [x] 用户注册 API + 密码加密
 - [x] 用户登录 API + Session 管理
 - [x] 用户登出 API
-- [ ] 登录状态校验中间件
-- [ ] 前端登录/注册页面
+- [x] 登录状态校验中间件
 
 
 ### Phase 3: 题目系统
@@ -491,6 +490,7 @@ CREATE TABLE submission_results (
 
 ### Phase 7: 前端完善
 
+- [x] 前端登录/注册页面
 - [ ] 代码编辑器集成（CodeMirror）
 - [ ] 草稿自动保存（LocalStorage）
 - [ ] 题目详情页（编辑器 + 提交）

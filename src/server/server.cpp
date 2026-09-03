@@ -20,6 +20,8 @@ void Server::start() {
     running_ = true;
     Logger::instance().info("Server starting on " + host_ + ":" + std::to_string(port_));
 
+    svr_.set_mount_point("/", "./web");
+
     svr_.Get("/health", [](const httplib::Request&, httplib::Response& res) {
         res.set_content("OK", "text/plain");
     });
