@@ -32,6 +32,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/src/server/middleware
     ${CMAKE_SOURCE_DIR}/src/models
     ${CMAKE_SOURCE_DIR}/src/services
+    ${CMAKE_SOURCE_DIR}/src/worker
     ${CMAKE_SOURCE_DIR}/src/db_pool
     ${MYSQL_INCLUDE_DIRS}
     ${OPENSSL_INCLUDE_DIR}
@@ -50,6 +51,7 @@ set(MODELS_SOURCES
     src/models/test_case.cpp
     src/models/submission.cpp
     src/models/submission_result.cpp
+    src/models/judge_queue.cpp
 )
 
 set(SERVICES_SOURCES
@@ -94,6 +96,9 @@ target_link_libraries(oj_server oj_core)
 
 add_executable(create_admin src/tools/create_admin.cpp)
 target_link_libraries(create_admin oj_core)
+
+add_executable(judge_worker src/tools/main_worker.cpp src/worker/judge_worker.cpp)
+target_link_libraries(judge_worker oj_core)
 
 enable_testing()
 add_subdirectory(tests/unit)

@@ -491,3 +491,71 @@ TEST_F(TestCaseHandlerDbTest, DeleteTestCase_NotFound) {
 
     EXPECT_EQ("Test case not found", json["error"].asString());
 }
+
+TEST_F(TestCaseHandlerDbTest, AddTestCase_InputFileExceedsSizeLimit) {
+    int problemId = createProblem("Test Problem");
+
+    httplib::Request req = createMultipartRequest("POST", "/api/problems/" + std::to_string(problemId) + "/testcases",
+                                                  "session_token=" + adminToken);
+    req.path_params["id"] = std::to_string(problemId);
+
+    std::string largeContent(11 * 1024 * 1024, 'x');
+    addFileToRequest(req, "input", "large.in", largeContent);
+    addFileToRequest(req, "output", "1.out", "result");
+
+    httplib::Response res;
+
+    handleAddTestCase(req, res);
+
+    EXPECT_EQ(400, res.status);
+    EXPECT_TRUE(res.body.find("Input file exceeds maximum size limit") != std::string::npos);
+}
+
+TEST_F(TestCaseHandlerDbTest, AddTestCase_OutputFileExceedsSizeLimit) {
+    int problemId = createProblem("Test Problem");
+
+    httplib::Request req = createMultipartRequest("POST", "/api/problems/" + std::to_string(problemId) + "/testcases",
+                                                  "session_token=" + adminToken);
+    req.path_params["id"] = std::to_string(problemId);
+
+    std::string largeContent(11 * 1024 * 1024, 'y');
+    addFileToRequest(req, "input", "1.in", "input data");
+    addFileToRequest(req, "output", "large.out", largeContent);
+
+    httplib::Response res;
+
+    handleAddTestCase(req, res);
+
+    EXPECT_EQ(400, res.status);
+    EXPECT_TRUE(res.body.find("Output file exceeds maximum size limit") != std::string::npos);
+}
+
+TEST_F(TestCaseHandlerDbTest, AddTestCase_MaxCountLimit) {
+    Config::instance().app().max_test_case_count = 5;
+
+    int problemId = createProblem("Test Problem");
+
+    for (int i = 0; i < 5; i++) {
+        TestCase tc;
+        tc.problem_id = problemId;
+        tc.input_path = "/tmp/test_cases/" + std::to_string(problemId) + "/tc" + std::to_string(i) + "_in.txt";
+        tc.output_path = "/tmp/test_cases/" + std::to_string(problemId) + "/tc" + std::to_string(i) + "_out.txt";
+        tc.score = 100;
+        tc.is_sample = false;
+        tc.create();
+    }
+
+    httplib::Request req = createMultipartRequest("POST", "/api/problems/" + std::to_string(problemId) + "/testcases",
+                                                  "session_token=" + adminToken);
+    req.path_params["id"] = std::to_string(problemId);
+
+    addFileToRequest(req, "input", "1.in", "input");
+    addFileToRequest(req, "output", "1.out", "output");
+
+    httplib::Response res;
+
+    handleAddTestCase(req, res);
+
+    EXPECT_EQ(400, res.status);
+    EXPECT_TRUE(res.body.find("Maximum test case count") != std::string::npos);
+}

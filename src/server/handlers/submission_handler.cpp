@@ -2,6 +2,10 @@
 #include "auth_middleware.h"
 #include "logger.h"
 #include "submission.h"
+#include "submission_result.h"
+#include "problem.h"
+#include "test_case.h"
+#include "judge_queue.h"
 #include "json.h"
 #include <sstream>
 
@@ -38,12 +42,21 @@ void handleCreateSubmission(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
+    int problemId = json["problem_id"].asInt();
+    auto problemOpt = Problem::findById(problemId);
+    if (!problemOpt.has_value()) {
+        res.status = 404;
+        res.set_content("{\"error\": \"Problem not found\"}", "application/json");
+        return;
+    }
+
     Submission submission;
     submission.user_id = userOpt.value().id;
-    submission.problem_id = json["problem_id"].asInt();
+    submission.problem_id = problemId;
     submission.code = json["code"].asString();
     submission.language = json["language"].asString();
     submission.status = "pending";
+    submission.queue_status = "pending";
 
     if (!submission.create()) {
         Logger::instance().error("Failed to create submission");
@@ -52,11 +65,22 @@ void handleCreateSubmission(const httplib::Request& req, httplib::Response& res)
         return;
     }
 
-    Logger::instance().info("Submission created: ID " + std::to_string(submission.id));
-    res.status = 201;
+    Logger::instance().info("Submission created: ID " + std::to_string(submission.id) + ", problem: " + std::to_string(problemId));
+
+    JudgeQueueItem queueItem;
+    queueItem.submission_id = submission.id;
+    queueItem.priority = 0;
+    if (!queueItem.create()) {
+        Logger::instance().error("Failed to enqueue submission: " + std::to_string(submission.id));
+    }
+
     Json::Value result;
-    result["message"] = "Submission created successfully";
+    result["message"] = "Submission created and queued for judging";
     result["id"] = submission.id;
+    result["status"] = "pending";
+    result["queue_status"] = "pending";
+
+    res.status = 201;
     res.set_content(result.toStyledString(), "application/json");
 }
 
@@ -87,14 +111,15 @@ void handleListSubmissions(const httplib::Request& req, httplib::Response& res) 
 
     User user = userOpt.value();
     std::vector<Submission> submissions;
+    int total = 0;
 
     if (user.role == UserRole::Admin) {
         submissions = Submission::findAll(page, pageSize);
+        total = Submission::countAll();
     } else {
         submissions = Submission::findByUserId(user.id, page, pageSize);
+        total = Submission::countByUserId(user.id);
     }
-
-    int total = Submission::countByUserId(user.id);
 
     Json::Value result;
     Json::Value submissionsArray(Json::arrayValue);
@@ -105,6 +130,7 @@ void handleListSubmissions(const httplib::Request& req, httplib::Response& res) 
         js["problem_id"] = s.problem_id;
         js["language"] = s.language;
         js["status"] = s.status;
+        js["queue_status"] = s.queue_status;
         js["execute_time_ms"] = s.execute_time_ms;
         js["execute_memory_kb"] = s.execute_memory_kb;
         js["created_at"] = s.created_at;
@@ -158,10 +184,26 @@ void handleGetSubmission(const httplib::Request& req, httplib::Response& res) {
     js["code"] = submission.code;
     js["language"] = submission.language;
     js["status"] = submission.status;
+    js["queue_status"] = submission.queue_status;
     js["error_detail"] = submission.error_detail;
     js["execute_time_ms"] = submission.execute_time_ms;
     js["execute_memory_kb"] = submission.execute_memory_kb;
     js["created_at"] = submission.created_at;
+
+    auto results = SubmissionResult::findBySubmissionId(submission.id);
+    Json::Value resultsArray(Json::arrayValue);
+    for (const auto& sr : results) {
+        Json::Value srJson;
+        srJson["id"] = sr.id;
+        srJson["test_case_id"] = sr.test_case_id;
+        srJson["status"] = sr.status;
+        srJson["actual_output"] = sr.actual_output;
+        srJson["expected_output"] = sr.expected_output;
+        srJson["execute_time_ms"] = sr.execute_time_ms;
+        srJson["execute_memory_kb"] = sr.execute_memory_kb;
+        resultsArray.append(srJson);
+    }
+    js["results"] = resultsArray;
 
     res.status = 200;
     res.set_content(js.toStyledString(), "application/json");

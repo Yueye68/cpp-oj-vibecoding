@@ -42,6 +42,25 @@ void handleAddTestCase(const httplib::Request& req, httplib::Response& res) {
     const auto& inputFile = req.form.get_file("input");
     const auto& outputFile = req.form.get_file("output");
 
+    size_t maxFileSize = Config::instance().app().max_test_case_file_size;
+    if (inputFile.content.size() > maxFileSize) {
+        res.status = 400;
+        res.set_content("{\"error\": \"Input file exceeds maximum size limit (10MB)\"}", "application/json");
+        return;
+    }
+    if (outputFile.content.size() > maxFileSize) {
+        res.status = 400;
+        res.set_content("{\"error\": \"Output file exceeds maximum size limit (10MB)\"}", "application/json");
+        return;
+    }
+
+    int currentCount = TestCase::countByProblemId(problemId);
+    if (currentCount >= Config::instance().app().max_test_case_count) {
+        res.status = 400;
+        res.set_content("{\"error\": \"Maximum test case count (20) reached for this problem\"}", "application/json");
+        return;
+    }
+
     std::string testCaseDir = Config::instance().app().test_case_dir + "/" + std::to_string(problemId);
     if (!fs::exists(testCaseDir)) {
         fs::create_directories(testCaseDir);

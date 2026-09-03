@@ -196,7 +196,9 @@ curl -s -X DELETE http://localhost:8080/api/testcases/<TESTCASE_ID> \
 
 ## 4. 提交相关
 
-### 4.1 提交代码评测
+> **注意**: 评测系统采用异步队列模式，提交代码后立即返回 `pending` 状态，需要轮询提交详情获取实际评测结果。
+
+### 4.1 提交代码评测（异步）
 
 ```bash
 curl -s -X POST http://localhost:8080/api/submissions \
@@ -211,6 +213,16 @@ curl -s -X POST http://localhost:8080/api/submissions \
 ```
 
 **预期响应**: `201 Created`
+```json
+{
+  "message": "Submission created and queued for judging",
+  "id": 123,
+  "status": "pending",
+  "queue_status": "pending"
+}
+```
+
+> **说明**: 响应中的 `status: "pending"` 表示提交已入队等待评测，实际结果需要通过 4.3 接口轮询获取。
 
 ### 4.2 获取提交历史
 
@@ -222,6 +234,8 @@ curl -s http://localhost:8080/api/submissions \
 
 **预期响应**: `200 OK`
 
+> **说明**: 列表中每个提交包含 `queue_status` 字段，可能值为: `pending`(等待中)、`running`(评测中)、`completed`(已完成)、`failed`(失败)
+
 ### 4.3 获取提交详情
 
 ```bash
@@ -231,6 +245,58 @@ curl -s http://localhost:8080/api/submissions/<SUBMISSION_ID> \
 ```
 
 **预期响应**: `200 OK`
+```json
+{
+  "id": 123,
+  "user_id": 1,
+  "problem_id": 1,
+  "code": "#include <bits/stdc++.h>...",
+  "language": "cpp",
+  "status": "AC",
+  "queue_status": "completed",
+  "execute_time_ms": 15,
+  "execute_memory_kb": 2048,
+  "created_at": "2026-09-03 14:00:00",
+  "results": [
+    {
+      "id": 1,
+      "test_case_id": 1,
+      "status": "AC",
+      "actual_output": "5",
+      "expected_output": "5",
+      "execute_time_ms": 10,
+      "execute_memory_kb": 1024
+    }
+  ]
+}
+```
+
+> **轮询建议**: 提交后建议每 1-2 秒轮询一次，当 `queue_status` 变为 `completed` 或 `failed` 时表示评测结束，此时 `status` 字段为最终结果。
+
+### 4.4 轮询获取评测结果示例
+
+```bash
+# 提交代码
+SUBMISSION_RESP=$(curl -s -X POST http://localhost:8080/api/submissions \
+  -H "Content-Type: application/json" \
+  -b /tmp/admin_cookies.txt \
+  -d '{"problem_id": <ID>, "code": "#include <bits/stdc++.h>...", "language": "cpp"}')
+echo "$SUBMISSION_RESP"
+
+SUBMISSION_ID=$(echo "$SUBMISSION_RESP" | grep -o '"id":[0-9]*' | cut -d: -f2)
+
+# 轮询直到评测完成
+while true; do
+  RESP=$(curl -s http://localhost:8080/api/submissions/$SUBMISSION_ID -b /tmp/admin_cookies.txt)
+  QUEUE_STATUS=$(echo "$RESP" | grep -o '"queue_status":"[^"]*"' | cut -d'"' -f4)
+  echo "Queue status: $QUEUE_STATUS"
+  if [ "$QUEUE_STATUS" = "completed" ] || [ "$QUEUE_STATUS" = "failed" ]; then
+    echo "$RESP"
+    break
+  fi
+  sleep 1
+done
+```
 
 ---
 
@@ -376,8 +442,8 @@ curl -s -X PUT "$BASE_URL/api/problems/$PROBLEM_ID" \
   -d '{"difficulty": "medium"}'
 echo ""
 
-# 10. 提交代码
-echo -e "\n[11] 提交代码"
+# 10. 提交代码（异步）
+echo -e "\n[11] 提交代码（异步）"
 SUBMISSION_RESP=$(curl -s -X POST "$BASE_URL/api/submissions" \
   -H "Content-Type: application/json" \
   -b "$COOKIE_FILE" \
@@ -387,20 +453,38 @@ SUBMISSION_RESP=$(curl -s -X POST "$BASE_URL/api/submissions" \
     \"language\": \"cpp\"
   }")
 echo "$SUBMISSION_RESP"
+SUBMISSION_ID=$(echo "$SUBMISSION_RESP" | grep -o '"id":[0-9]*' | cut -d: -f2)
 echo ""
 
-# 11. 获取提交历史
-echo -e "\n[12] 获取提交历史"
+# 11. 轮询获取评测结果
+echo -e "\n[12] 轮询获取评测结果"
+if [ -n "$SUBMISSION_ID" ]; then
+  for i in {1..10}; do
+    DETAIL=$(curl -s "$BASE_URL/api/submissions/$SUBMISSION_ID" -b "$COOKIE_FILE")
+    QUEUE_STATUS=$(echo "$DETAIL" | grep -o '"queue_status":"[^"]*"' | cut -d'"' -f4)
+    FINAL_STATUS=$(echo "$DETAIL" | grep -o '"status":"[^"]*"' | head -1 | cut -d'"' -f4)
+    echo "Attempt $i: queue_status=$QUEUE_STATUS, status=$FINAL_STATUS"
+    if [ "$QUEUE_STATUS" = "completed" ] || [ "$QUEUE_STATUS" = "failed" ]; then
+      echo "Result: $DETAIL"
+      break
+    fi
+    sleep 1
+  done
+fi
+echo ""
+
+# 12. 获取提交历史
+echo -e "\n[13] 获取提交历史"
 curl -s "$BASE_URL/api/submissions" -b "$COOKIE_FILE"
 echo ""
 
-# 12. 删除题目
-echo -e "\n[13] 删除题目"
+# 13. 删除题目
+echo -e "\n[14] 删除题目"
 curl -s -X DELETE "$BASE_URL/api/problems/$PROBLEM_ID" -b "$ADMIN_COOKIE_FILE"
 echo ""
 
-# 13. 登出
-echo -e "\n[14] 用户登出"
+# 14. 登出
+echo -e "\n[15] 用户登出"
 curl -s -X POST "$BASE_URL/api/auth/logout" -b "$COOKIE_FILE"
 echo ""
 
@@ -431,6 +515,10 @@ echo -e "\n===== 测试完成 ====="
 | 提交历史 | GET | /api/submissions | 200 / 401 |
 | 提交详情 | GET | /api/submissions/:id | 200 / 401 / 403 / 404 |
 
+**提交相关状态说明**:
+- `queue_status`: 队列状态 - `pending`(等待中)、`running`(评测中)、`completed`(完成)、`failed`(失败)
+- `status`: 评测结果 - `AC`(通过)、`WA`(答案错误)、`CE`(编译错误)、`TLE`(超时)、`MLE`(超内存)、`RE`(运行错误)
+
 ---
 
 ## 8. 常见问题排查
@@ -439,3 +527,8 @@ echo -e "\n===== 测试完成 ====="
 2. **401 Unauthorized**: 检查 Cookie 是否正确保存和传递
 3. **403 Forbidden**: 确认使用的是管理员账号 admin/admin123
 4. **404 Not Found**: 确认资源 ID 存在
+5. **提交后 status 一直是 pending**: 确认 `judge_worker` 进程正在运行，评测服务需要单独启动:
+   ```bash
+   # 启动 Worker
+   ./build/bin/judge_worker ./config/config.yaml
+   ```

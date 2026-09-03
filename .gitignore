@@ -16,3 +16,4 @@ oj_server
 *.a
 
 .opencode/
+test_cases/

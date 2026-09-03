@@ -24,6 +24,15 @@ struct AppConfig {
     std::string upload_dir = "./uploads";
     std::string log_level = "INFO";
     std::string log_file = "./logs/app.log";
+    int max_test_case_count = 20;
+    size_t max_test_case_file_size = 10 * 1024 * 1024;
+};
+
+struct WorkerConfig {
+    int poll_interval_ms = 1000;
+    int max_retries = 3;
+    int worker_threads = 4;
+    std::string worker_id_prefix = "worker";
 };
 
 class Config {
@@ -37,10 +46,12 @@ public:
     const DatabaseConfig& database() const { return db_config_; }
     const ServerConfig& server() const { return server_config_; }
     const AppConfig& app() const { return app_config_; }
+    const WorkerConfig& worker() const { return worker_config_; }
 
     DatabaseConfig& database() { return db_config_; }
     ServerConfig& server() { return server_config_; }
     AppConfig& app() { return app_config_; }
+    WorkerConfig& worker() { return worker_config_; }
 
 private:
     Config() = default;
@@ -55,4 +66,5 @@ private:
     DatabaseConfig db_config_;
     ServerConfig server_config_;
     AppConfig app_config_;
+    WorkerConfig worker_config_;
 };

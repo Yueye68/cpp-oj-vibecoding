@@ -13,6 +13,7 @@ void Config::reset() {
     db_config_ = DatabaseConfig();
     server_config_ = ServerConfig();
     app_config_ = AppConfig();
+    worker_config_ = WorkerConfig();
 }
 
 bool Config::load(const std::string& filepath) {
@@ -109,6 +110,16 @@ bool Config::parseYAML(const std::string& content) {
         if (app.count("upload_dir")) app_config_.upload_dir = app.at("upload_dir");
         if (app.count("log_level")) app_config_.log_level = app.at("log_level");
         if (app.count("log_file")) app_config_.log_file = app.at("log_file");
+        if (app.count("max_test_case_count")) app_config_.max_test_case_count = std::stoi(app.at("max_test_case_count"));
+        if (app.count("max_test_case_file_size")) app_config_.max_test_case_file_size = std::stoul(app.at("max_test_case_file_size"));
+    }
+
+    if (sections.find("worker") != sections.end()) {
+        const auto& wrk = sections["worker"];
+        if (wrk.count("poll_interval_ms")) worker_config_.poll_interval_ms = std::stoi(wrk.at("poll_interval_ms"));
+        if (wrk.count("max_retries")) worker_config_.max_retries = std::stoi(wrk.at("max_retries"));
+        if (wrk.count("worker_threads")) worker_config_.worker_threads = std::stoi(wrk.at("worker_threads"));
+        if (wrk.count("worker_id_prefix")) worker_config_.worker_id_prefix = wrk.at("worker_id_prefix");
     }
 
     return true;

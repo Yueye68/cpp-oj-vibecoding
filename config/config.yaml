@@ -16,3 +16,11 @@ app:
   upload_dir: ./uploads
   log_level: INFO
   log_file: ./logs/app.log
+  max_test_case_count: 20
+  max_test_case_file_size: 10485760
+
+worker:
+  poll_interval_ms: 1000
+  max_retries: 3
+  worker_threads: 4
+  worker_id_prefix: judge_worker

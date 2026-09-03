@@ -116,6 +116,13 @@ target_link_libraries(test_auth_middleware
     GTest::gtest_main
     pthread
 )
-gtest_discover_tests(test_auth_middleware)
+
+add_executable(test_submission_handler test_submission_handler.cpp)
+target_link_libraries(test_submission_handler
+    oj_core
+    GTest::gtest_main
+    pthread
+)
+gtest_discover_tests(test_submission_handler)
 
 gtest_discover_tests(test_models_db)

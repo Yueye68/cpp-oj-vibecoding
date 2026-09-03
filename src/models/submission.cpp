@@ -23,11 +23,12 @@ bool Submission::create() {
     }
 
     std::ostringstream query;
-    query << "INSERT INTO submissions (user_id, problem_id, code, language, status) VALUES ("
+    query << "INSERT INTO submissions (user_id, problem_id, code, language, status, queue_status) VALUES ("
           << user_id << ", " << problem_id << ", "
           << escapeString(conn, code) << ", "
           << escapeString(conn, language) << ", "
-          << escapeString(conn, status) << ")";
+          << escapeString(conn, status) << ", "
+          << escapeString(conn, queue_status) << ")";
 
     if (mysql_real_query(conn, query.str().c_str(), query.str().size()) != 0) {
         Logger::instance().error("Failed to create submission: " + std::string(mysql_error(conn)));
@@ -51,6 +52,7 @@ bool Submission::update() {
 
     std::ostringstream query;
     query << "UPDATE submissions SET status = " << escapeString(conn, status)
+          << ", queue_status = " << escapeString(conn, queue_status)
           << ", error_detail = " << escapeString(conn, error_detail)
           << ", execute_time_ms = " << execute_time_ms
           << ", execute_memory_kb = " << execute_memory_kb
@@ -58,6 +60,29 @@ bool Submission::update() {
 
     if (mysql_real_query(conn, query.str().c_str(), query.str().size()) != 0) {
         Logger::instance().error("Failed to update submission: " + std::string(mysql_error(conn)));
+        ConnectionPool::instance().returnConnection(conn);
+        return false;
+    }
+
+    ConnectionPool::instance().returnConnection(conn);
+    return true;
+}
+
+bool Submission::updateQueueStatus(const std::string& qs) {
+    if (id <= 0) return false;
+
+    MYSQL* conn = ConnectionPool::instance().getConnection();
+    if (!conn) {
+        Logger::instance().error("Failed to get database connection for Submission::updateQueueStatus");
+        return false;
+    }
+
+    std::ostringstream query;
+    query << "UPDATE submissions SET queue_status = " << escapeString(conn, qs)
+          << " WHERE id = " << id;
+
+    if (mysql_real_query(conn, query.str().c_str(), query.str().size()) != 0) {
+        Logger::instance().error("Failed to update queue status: " + std::string(mysql_error(conn)));
         ConnectionPool::instance().returnConnection(conn);
         return false;
     }
@@ -93,7 +118,7 @@ bool Submission::loadFromDB(int loadId) {
         return false;
     }
 
-    std::string query = "SELECT id, user_id, problem_id, code, language, status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions WHERE id = " + std::to_string(loadId);
+    std::string query = "SELECT id, user_id, problem_id, code, language, status, queue_status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions WHERE id = " + std::to_string(loadId);
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
         Logger::instance().error("Failed to load submission from DB: " + std::string(mysql_error(conn)));
@@ -120,10 +145,11 @@ bool Submission::loadFromDB(int loadId) {
     code = row[3] ? row[3] : "";
     language = row[4] ? row[4] : "cpp";
     status = row[5] ? row[5] : "";
-    error_detail = row[6] ? row[6] : "";
-    execute_time_ms = row[7] ? std::stoi(row[7]) : 0;
-    execute_memory_kb = row[8] ? std::stoi(row[8]) : 0;
-    created_at = row[9] ? row[9] : "";
+    queue_status = row[6] ? row[6] : "pending";
+    error_detail = row[7] ? row[7] : "";
+    execute_time_ms = row[8] ? std::stoi(row[8]) : 0;
+    execute_memory_kb = row[9] ? std::stoi(row[9]) : 0;
+    created_at = row[10] ? row[10] : "";
 
     mysql_free_result(result);
     ConnectionPool::instance().returnConnection(conn);
@@ -145,7 +171,7 @@ std::optional<Submission> Submission::findById(int submissionId) {
         return std::nullopt;
     }
 
-    std::string query = "SELECT id, user_id, problem_id, code, language, status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions WHERE id = " + std::to_string(submissionId);
+    std::string query = "SELECT id, user_id, problem_id, code, language, status, queue_status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions WHERE id = " + std::to_string(submissionId);
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
         Logger::instance().error("Failed to find submission by id: " + std::string(mysql_error(conn)));
@@ -173,10 +199,11 @@ std::optional<Submission> Submission::findById(int submissionId) {
     sub.code = row[3] ? row[3] : "";
     sub.language = row[4] ? row[4] : "cpp";
     sub.status = row[5] ? row[5] : "";
-    sub.error_detail = row[6] ? row[6] : "";
-    sub.execute_time_ms = row[7] ? std::stoi(row[7]) : 0;
-    sub.execute_memory_kb = row[8] ? std::stoi(row[8]) : 0;
-    sub.created_at = row[9] ? row[9] : "";
+    sub.queue_status = row[6] ? row[6] : "pending";
+    sub.error_detail = row[7] ? row[7] : "";
+    sub.execute_time_ms = row[8] ? std::stoi(row[8]) : 0;
+    sub.execute_memory_kb = row[9] ? std::stoi(row[9]) : 0;
+    sub.created_at = row[10] ? row[10] : "";
 
     mysql_free_result(result);
     ConnectionPool::instance().returnConnection(conn);
@@ -192,7 +219,7 @@ std::vector<Submission> Submission::findAll(int page, int pageSize) {
         return submissions;
     }
 
-    std::string query = "SELECT id, user_id, problem_id, code, language, status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions ORDER BY id DESC LIMIT " +
+    std::string query = "SELECT id, user_id, problem_id, code, language, status, queue_status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions ORDER BY id DESC LIMIT " +
                        std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
@@ -216,10 +243,11 @@ std::vector<Submission> Submission::findAll(int page, int pageSize) {
         sub.code = row[3] ? row[3] : "";
         sub.language = row[4] ? row[4] : "cpp";
         sub.status = row[5] ? row[5] : "";
-        sub.error_detail = row[6] ? row[6] : "";
-        sub.execute_time_ms = row[7] ? std::stoi(row[7]) : 0;
-        sub.execute_memory_kb = row[8] ? std::stoi(row[8]) : 0;
-        sub.created_at = row[9] ? row[9] : "";
+        sub.queue_status = row[6] ? row[6] : "pending";
+        sub.error_detail = row[7] ? row[7] : "";
+        sub.execute_time_ms = row[8] ? std::stoi(row[8]) : 0;
+        sub.execute_memory_kb = row[9] ? std::stoi(row[9]) : 0;
+        sub.created_at = row[10] ? row[10] : "";
         submissions.push_back(sub);
     }
 
@@ -237,7 +265,7 @@ std::vector<Submission> Submission::findByUserId(int userId, int page, int pageS
         return submissions;
     }
 
-    std::string query = "SELECT id, user_id, problem_id, code, language, status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions WHERE user_id = " +
+    std::string query = "SELECT id, user_id, problem_id, code, language, status, queue_status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions WHERE user_id = " +
                        std::to_string(userId) + " ORDER BY id DESC LIMIT " + std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
@@ -261,10 +289,11 @@ std::vector<Submission> Submission::findByUserId(int userId, int page, int pageS
         sub.code = row[3] ? row[3] : "";
         sub.language = row[4] ? row[4] : "cpp";
         sub.status = row[5] ? row[5] : "";
-        sub.error_detail = row[6] ? row[6] : "";
-        sub.execute_time_ms = row[7] ? std::stoi(row[7]) : 0;
-        sub.execute_memory_kb = row[8] ? std::stoi(row[8]) : 0;
-        sub.created_at = row[9] ? row[9] : "";
+        sub.queue_status = row[6] ? row[6] : "pending";
+        sub.error_detail = row[7] ? row[7] : "";
+        sub.execute_time_ms = row[8] ? std::stoi(row[8]) : 0;
+        sub.execute_memory_kb = row[9] ? std::stoi(row[9]) : 0;
+        sub.created_at = row[10] ? row[10] : "";
         submissions.push_back(sub);
     }
 
@@ -282,7 +311,7 @@ std::vector<Submission> Submission::findByProblemId(int problemId, int page, int
         return submissions;
     }
 
-    std::string query = "SELECT id, user_id, problem_id, code, language, status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions WHERE problem_id = " +
+    std::string query = "SELECT id, user_id, problem_id, code, language, status, queue_status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions WHERE problem_id = " +
                        std::to_string(problemId) + " ORDER BY id DESC LIMIT " + std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
@@ -306,10 +335,11 @@ std::vector<Submission> Submission::findByProblemId(int problemId, int page, int
         sub.code = row[3] ? row[3] : "";
         sub.language = row[4] ? row[4] : "cpp";
         sub.status = row[5] ? row[5] : "";
-        sub.error_detail = row[6] ? row[6] : "";
-        sub.execute_time_ms = row[7] ? std::stoi(row[7]) : 0;
-        sub.execute_memory_kb = row[8] ? std::stoi(row[8]) : 0;
-        sub.created_at = row[9] ? row[9] : "";
+        sub.queue_status = row[6] ? row[6] : "pending";
+        sub.error_detail = row[7] ? row[7] : "";
+        sub.execute_time_ms = row[8] ? std::stoi(row[8]) : 0;
+        sub.execute_memory_kb = row[9] ? std::stoi(row[9]) : 0;
+        sub.created_at = row[10] ? row[10] : "";
         submissions.push_back(sub);
     }
 

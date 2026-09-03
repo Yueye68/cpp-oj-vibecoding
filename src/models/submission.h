@@ -13,6 +13,7 @@ struct Submission {
     std::string code;
     std::string language = "cpp";
     std::string status;
+    std::string queue_status = "pending";
     std::string error_detail;
     int execute_time_ms = 0;
     int execute_memory_kb = 0;
@@ -23,6 +24,7 @@ struct Submission {
     bool remove();
     bool loadFromDB(int loadId);
     bool saveToDB();
+    bool updateQueueStatus(const std::string& qs);
 
     static std::optional<Submission> findById(int id);
     static std::vector<Submission> findAll(int page = 1, int pageSize = 20);

@@ -3,9 +3,12 @@ import tempfile
 import os
 import unittest
 import time
-from typing import Optional
+from typing import Optional, Tuple
 
 BASE_URL = "http://localhost:8080"
+
+DEFAULT_POLL_INTERVAL = 1
+DEFAULT_POLL_TIMEOUT = 30
 
 
 class APIClient:
@@ -27,6 +30,21 @@ class APIClient:
 
     def upload_file(self, path: str, files: dict, **kwargs):
         return self.session.post(f"{self.base_url}{path}", files=files, **kwargs)
+
+    def poll_submission(self, submission_id: int, interval: int = DEFAULT_POLL_INTERVAL,
+                        timeout: int = DEFAULT_POLL_TIMEOUT) -> Tuple[dict, str]:
+        elapsed = 0
+        while elapsed < timeout:
+            resp = self.get(f"/api/submissions/{submission_id}")
+            if resp.status_code != 200:
+                return {}, "error"
+            data = resp.json()
+            queue_status = data.get("queue_status", "unknown")
+            if queue_status in ["completed", "failed"]:
+                return data, queue_status
+            time.sleep(interval)
+            elapsed += interval
+        return {}, "timeout"
 
 
 def unique_name(prefix):
@@ -342,6 +360,34 @@ class TestSubmissions(unittest.TestCase):
         )
         cls.problem_id = resp.json().get("id") if resp.status_code == 201 else None
 
+        if cls.problem_id:
+            input_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+            input_file.write("1 2 3")
+            input_file.close()
+            cls.input_path = input_file.name
+
+            output_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+            output_file.write("6")
+            output_file.close()
+            cls.output_path = output_file.name
+
+            with open(cls.input_path, 'rb') as inp, open(cls.output_path, 'rb') as out:
+                resp = cls.admin_client.upload_file(
+                    f"/api/problems/{cls.problem_id}/testcases",
+                    files={
+                        "input": inp,
+                        "output": out,
+                        "is_sample": "1"
+                    }
+                )
+            cls.testcase_id = resp.json().get("id") if resp.status_code == 201 else None
+
+    @classmethod
+    def tearDownClass(cls):
+        for f in getattr(cls, 'input_path', None), getattr(cls, 'output_path', None):
+            if f and os.path.exists(f):
+                os.unlink(f)
+
     def test_create_submission(self):
         if not self.problem_id:
             self.skipTest("Problem not created")
@@ -354,10 +400,38 @@ class TestSubmissions(unittest.TestCase):
             }
         )
         self.assertEqual(resp.status_code, 201)
+        data = resp.json()
+        self.assertEqual(data.get("status"), "pending")
+        self.assertEqual(data.get("queue_status"), "pending")
+        self.assertIn("id", data)
+
+    def test_create_submission_with_polling(self):
+        if not self.problem_id:
+            self.skipTest("Problem not created")
+        resp = self.user_client.post(
+            "/api/submissions",
+            json={
+                "problem_id": self.problem_id,
+                "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                "language": "cpp"
+            }
+        )
+        self.assertEqual(resp.status_code, 201)
+        submission_id = resp.json().get("id")
+        self.assertIsNotNone(submission_id)
+
+        result_data, queue_status = self.user_client.poll_submission(submission_id)
+        self.assertIn(queue_status, ["completed", "failed"])
+        if queue_status == "completed":
+            self.assertIn(result_data.get("status"), ["AC", "WA", "CE", "TLE", "MLE", "RE", "PE"])
 
     def test_get_submission_history(self):
         resp = self.user_client.get("/api/submissions")
         self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        submissions = data.get("submissions", [])
+        for sub in submissions:
+            self.assertIn("queue_status", sub)
 
     def test_get_submission_detail(self):
         resp = self.user_client.get("/api/submissions/1")
