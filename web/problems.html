@@ -9,13 +9,19 @@
 <body>
     <nav class="navbar">
         <div class="nav-brand">
-            <a href="/">C++ OJ</a>
+            <a href="index.html">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                C++ OJ
+            </a>
         </div>
-        <div class="nav-links">
-            <a href="/">首页</a>
-            <a href="/problems.html" class="active">题目列表</a>
-            <a href="/submissions.html">提交历史</a>
-            <span id="nav-user"></span>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">首页</a>
+            <a href="problems.html" class="active">题目</a>
+            <a href="login.html">登录</a>
+            <a href="register.html">注册</a>
         </div>
     </nav>
 
@@ -55,16 +61,24 @@
     <script src="/js/auth.js"></script>
     <script src="/js/problems.js"></script>
     <script>
-        async function initNav() {
-            const result = await api.auth.me();
-            const navUser = document.getElementById('nav-user');
-            if (result && result.username) {
-                navUser.innerHTML = `<span>${result.username}</span> | <a href="/logout.html">登出</a>`;
-            } else {
-                navUser.innerHTML = `<a href="/login.html">登录</a> | <a href="/register.html">注册</a>`;
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/me');
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('nav-links').innerHTML = `
+                        <a href="index.html">首页</a>
+                        <a href="problems.html" class="active">题目</a>
+                        <a href="submissions.html">提交</a>
+                        <span>${user.username}</span>
+                        <a href="/logout.html" class="btn-logout">登出</a>
+                    `;
+                }
+            } catch (err) {
+                console.log('Not logged in');
             }
         }
-        initNav();
+        checkAuth();
         initProblemsPage();
     </script>
 </body>
