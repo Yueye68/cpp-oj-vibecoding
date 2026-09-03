@@ -495,7 +495,7 @@ CREATE TABLE submission_results (
 - [x] 草稿自动保存（LocalStorage）
 - [x] 题目列表页
 - [x] 题目详情页（编辑器 + 提交）
-- [ ] 管理后台（新增/删除题目）
+- [x] 管理后台（新增/删除题目）
 - [x] UI 样式美化
 
 ### Phase 8: 集成与测试

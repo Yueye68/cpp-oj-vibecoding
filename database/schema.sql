@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS submissions (
     execute_memory_kb INT,                        -- 峰值内存占用（KB）
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 提交时间
     FOREIGN KEY (user_id) REFERENCES users(id),  -- 关联用户
-    FOREIGN KEY (problem_id) REFERENCES problems(id)  -- 关联题目
+    FOREIGN KEY (problem_id) REFERENCES problems(id) ON DELETE CASCADE  -- 关联题目
 );
 
 -- ==================== 提交详细结果表 ====================

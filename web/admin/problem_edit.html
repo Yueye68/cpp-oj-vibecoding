@@ -6,207 +6,407 @@
     <title id="page-title">新增题目 - C++ OJ 管理后台</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
         .form-container {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-width: 800px;
+            background: var(--bg-card);
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            max-width: 900px;
             margin: 0 auto;
         }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-section-title svg {
+            width: 18px;
+            height: 18px;
+            color: var(--primary);
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
+
         .form-group label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-weight: 600;
-            color: #555;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
         }
+
+        .form-group label .required {
+            color: var(--error);
+            margin-left: 2px;
+        }
+
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
             font-family: inherit;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: all 0.2s;
         }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-muted);
+        }
+
         .form-group textarea {
-            min-height: 200px;
+            min-height: 180px;
             resize: vertical;
+            font-family: 'Space Grotesk', monospace;
+            line-height: 1.6;
         }
+
         .form-group small {
-            color: #888;
-            font-size: 12px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 6px;
+            display: block;
         }
+
         .form-row {
-            display: flex;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
         }
-        .form-row .form-group {
-            flex: 1;
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
         }
+
         .form-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: flex-end;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
         }
+
         .btn {
-            padding: 10px 24px;
-            border: none;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.9rem;
+            font-weight: 600;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            border: none;
         }
+
         .btn-primary {
-            background: #3498db;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
         }
+
         .btn-primary:hover {
-            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-secondary {
-            background: #95a5a6;
-            color: white;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
         }
+
         .btn-secondary:hover {
-            background: #7f8c8d;
+            border-color: var(--text-muted);
+            color: var(--text-primary);
         }
+
         .tag-input-container {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            min-height: 44px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            min-height: 48px;
+            background: var(--bg-input);
+            transition: all 0.2s;
         }
+
+        .tag-input-container:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+        }
+
         .tag-input-container .tag {
-            background: #3498db;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             gap: 6px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(139, 92, 246, 0.25);
         }
+
         .tag-input-container .tag-remove {
             cursor: pointer;
             font-size: 16px;
             line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
+
+        .tag-input-container .tag-remove:hover {
+            opacity: 1;
+        }
+
         .tag-input-container input {
             border: none;
             outline: none;
             flex: 1;
-            min-width: 100px;
-            padding: 4px;
+            min-width: 120px;
+            padding: 6px;
+            background: transparent;
+            color: var(--text-primary);
         }
+
         .loading {
             text-align: center;
-            padding: 40px;
+            padding: 60px 20px;
+            color: var(--text-secondary);
         }
+
+        .loading svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
         .error-message {
-            background: #ffebee;
-            color: #e74c3c;
-            padding: 12px;
-            border-radius: 4px;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            padding: 16px;
+            border-radius: 10px;
             margin-bottom: 20px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+
+        .error-message svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
         .testcase-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
         }
-        .testcase-section h3 {
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
+
         .testcase-upload {
             display: flex;
-            gap: 10px;
+            gap: 16px;
             align-items: flex-end;
             flex-wrap: wrap;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            padding: 20px;
+            background: rgba(139, 92, 246, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 20px;
         }
+
         .testcase-upload .form-group {
             margin-bottom: 0;
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
         }
+
         .testcase-upload label {
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: block;
         }
+
         .testcase-upload input[type="file"] {
-            padding: 6px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
         }
+
         .testcase-upload .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            min-width: 100px;
         }
+
         .testcase-upload .checkbox-group input {
-            width: auto;
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
         }
+
+        .testcase-upload .checkbox-group label {
+            margin-bottom: 0;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
         .testcase-list {
             list-style: none;
-            padding: 0;
         }
+
         .testcase-list li {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 15px;
-            background: #f8f9fa;
-            border-radius: 4px;
-            margin-bottom: 8px;
+            padding: 14px 18px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: border-color 0.2s;
         }
+
+        .testcase-list li:hover {
+            border-color: var(--text-muted);
+        }
+
         .testcase-list li .tc-info {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             align-items: center;
         }
+
+        .testcase-list li .tc-info span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .testcase-list li .tc-info .tc-index {
+            color: var(--primary);
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 600;
+        }
+
         .testcase-list li .tc-badge {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            background: #e8f5e9;
-            color: #27ae60;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
+
         .testcase-list li .btn-delete-tc {
-            padding: 4px 12px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 4px;
+            padding: 6px 14px;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 0.85rem;
+            transition: all 0.2s;
         }
+
         .testcase-list li .btn-delete-tc:hover {
-            background: #c0392b;
+            background: rgba(239, 68, 68, 0.25);
+            border-color: var(--error);
         }
+
         .empty-tc {
             text-align: center;
-            padding: 20px;
-            color: #888;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            background: var(--bg-input);
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .form-row-2 {
+                grid-template-columns: 1fr;
+            }
+            .testcase-upload {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-brand">
-            <a href="/">C++ OJ</a>
-            <span style="font-size: 14px; margin-left: 10px;">管理后台</span>
+            <a href="/">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                C++ OJ
+            </a>
         </div>
         <div class="nav-links">
             <a href="/">首页</a>
@@ -217,60 +417,106 @@
     </nav>
 
     <div class="container">
-        <div id="loading" class="loading">加载中...</div>
+        <div class="page-header">
+            <h1 class="page-title" id="form-title">新增题目</h1>
+            <a href="/admin/problems.html" class="btn btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                返回列表
+            </a>
+        </div>
+
+        <div id="loading" class="loading">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+            </svg>
+            <p>加载中...</p>
+        </div>
         <div id="error" class="error-message" style="display: none;"></div>
 
         <div class="form-container" id="form-container" style="display: none;">
-            <h2 id="form-title">新增题目</h2>
-
             <form id="problem-form">
-                <div class="form-group">
-                    <label for="title">题目标题 *</label>
-                    <input type="text" id="title" name="title" required maxlength="200" placeholder="请输入题目标题">
-                </div>
-
-                <div class="form-group">
-                    <label for="description">题目描述 *</label>
-                    <textarea id="description" name="description" required placeholder="支持 Markdown 格式"></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="difficulty">难度等级 *</label>
-                        <select id="difficulty" name="difficulty" required>
-                            <option value="easy">简单</option>
-                            <option value="medium">中等</option>
-                            <option value="hard">困难</option>
-                        </select>
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        基础信息
                     </div>
-
                     <div class="form-group">
-                        <label for="time_limit_ms">时间限制 (ms)</label>
-                        <input type="number" id="time_limit_ms" name="time_limit_ms" value="1000" min="100" max="60000">
+                        <label for="title">题目标题 <span class="required">*</span></label>
+                        <input type="text" id="title" name="title" required maxlength="200" placeholder="请输入题目标题">
                     </div>
-
                     <div class="form-group">
-                        <label for="memory_limit_mb">内存限制 (MB)</label>
-                        <input type="number" id="memory_limit_mb" name="memory_limit_mb" value="256" min="16" max="1024">
+                        <label for="description">题目描述 <span class="required">*</span></label>
+                        <textarea id="description" name="description" required placeholder="支持 Markdown 格式，支持代码块、列表等"></textarea>
+                        <small>题目描述应清晰明确，包含输入输出格式说明和示例</small>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>分类标签</label>
-                    <div class="tag-input-container" id="tags-container">
-                        <input type="text" id="tag-input" placeholder="输入标签后按回车添加">
+                <div class="form-section">
+                    <div class="form-section-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        题目设置
                     </div>
-                    <small>支持的标签：算法、数据结构、字符串、数组、动态规划、图论、数学、搜索、排序、贪心</small>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="difficulty">难度等级 <span class="required">*</span></label>
+                            <select id="difficulty" name="difficulty" required>
+                                <option value="easy">简单</option>
+                                <option value="medium">中等</option>
+                                <option value="hard">困难</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="time_limit_ms">时间限制</label>
+                            <input type="number" id="time_limit_ms" name="time_limit_ms" value="1000" min="100" max="60000">
+                        </div>
+                        <div class="form-group">
+                            <label for="memory_limit_mb">内存限制</label>
+                            <input type="number" id="memory_limit_mb" name="memory_limit_mb" value="256" min="16" max="1024">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>分类标签</label>
+                        <div class="tag-input-container" id="tags-container">
+                            <input type="text" id="tag-input" placeholder="输入标签后按回车添加">
+                        </div>
+                        <small>支持的标签：算法、数据结构、字符串、数组、动态规划、图论、数学、搜索、排序、贪心</small>
+                    </div>
                 </div>
 
                 <div class="form-actions">
                     <a href="/admin/problems.html" class="btn btn-secondary">取消</a>
-                    <button type="submit" class="btn btn-primary" id="submit-btn">保存</button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        保存题目
+                    </button>
                 </div>
             </form>
 
             <div class="testcase-section" id="testcase-section" style="display: none;">
-                <h3>测试用例管理</h3>
+                <div class="form-section-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    测试用例管理
+                </div>
 
                 <div class="testcase-upload">
                     <div class="form-group">
@@ -285,7 +531,14 @@
                         <input type="checkbox" id="is-sample">
                         <label for="is-sample">示例测试点</label>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="uploadTestCase()">上传</button>
+                    <button type="button" class="btn btn-primary" onclick="uploadTestCase()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        上传
+                    </button>
                 </div>
 
                 <ul class="testcase-list" id="testcase-list">
@@ -316,7 +569,7 @@
             }
 
             const navUser = document.getElementById('nav-user');
-            navUser.innerHTML = `<span>${user.username}</span> | <a href="/logout.html">登出</a>`;
+            navUser.innerHTML = `<span style="color: var(--accent);">${user.username}</span> | <a href="/logout.html" class="btn-logout" style="color: var(--error);">登出</a>`;
 
             editProblemId = getProblemIdFromUrl();
 
@@ -383,7 +636,7 @@
             list.innerHTML = testCases.map((tc, index) => `
                 <li>
                     <div class="tc-info">
-                        <span>#${index + 1}</span>
+                        <span class="tc-index">#${index + 1}</span>
                         <span>ID: ${tc.id}</span>
                         <span>分值: ${tc.score}</span>
                         ${tc.is_sample ? '<span class="tc-badge">示例</span>' : ''}
@@ -487,8 +740,15 @@
 
         function showError(message) {
             const errorEl = document.getElementById('error');
-            errorEl.textContent = message;
-            errorEl.style.display = 'block';
+            errorEl.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                ${message}
+            `;
+            errorEl.style.display = 'flex';
             document.getElementById('loading').style.display = 'none';
         }
 
@@ -515,7 +775,13 @@
 
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
-            submitBtn.textContent = '保存中...';
+            submitBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                    <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+                    <path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="1"></path>
+                </svg>
+                保存中...
+            `;
 
             try {
                 let result;
@@ -528,7 +794,14 @@
                 if (result.error) {
                     alert('保存失败: ' + result.error);
                     submitBtn.disabled = false;
-                    submitBtn.textContent = '保存';
+                    submitBtn.innerHTML = `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                        保存题目
+                    `;
                     return;
                 }
 
@@ -545,9 +818,20 @@
             } catch (e) {
                 alert('保存失败: ' + e.message);
                 submitBtn.disabled = false;
-                submitBtn.textContent = '保存';
+                submitBtn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                        <polyline points="7 3 7 8 15 8"></polyline>
+                    </svg>
+                    保存题目
+                `;
             }
         });
+
+        const style = document.createElement('style');
+        style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
 
         initPage();
     </script>

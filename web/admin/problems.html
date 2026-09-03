@@ -10,100 +10,246 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
         }
+
+        .page-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
         .btn-primary {
-            background: #3498db;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
+            padding: 8px 16px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3);
+            white-space: nowrap;
         }
+
         .btn-primary:hover {
-            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         }
+
         .btn-sm {
-            padding: 4px 12px;
-            font-size: 12px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 6px;
         }
+
         .btn-edit {
-            background: #f39c12;
-            color: white;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            text-decoration: none;
-            font-size: 12px;
+            background: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.3);
         }
+
         .btn-edit:hover {
-            background: #d68910;
+            background: rgba(245, 158, 11, 0.25);
+            border-color: #F59E0B;
         }
+
         .btn-delete {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 4px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.3);
         }
+
         .btn-delete:hover {
-            background: #c0392b;
+            background: rgba(239, 68, 68, 0.25);
+            border-color: var(--error);
         }
+
         .admin-table {
             width: 100%;
-            background: white;
-            border-radius: 8px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
             overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
+
         .admin-table th,
         .admin-table td {
-            padding: 12px 15px;
+            padding: 14px 16px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border);
         }
+
         .admin-table th {
-            background: #f8f9fa;
+            background: rgba(139, 92, 246, 0.08);
             font-weight: 600;
-            color: #555;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
         .admin-table tr:last-child td {
             border-bottom: none;
         }
+
         .admin-table tr:hover td {
-            background: #f8f9fa;
+            background: rgba(139, 92, 246, 0.03);
         }
+
+        .admin-table td {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .admin-table a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .admin-table a:hover {
+            color: var(--neon-cyan);
+        }
+
         .actions {
             display: flex;
             gap: 8px;
         }
+
         .search-bar {
             margin-bottom: 20px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            align-items: center;
         }
+
         .search-bar input {
             flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            max-width: 400px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: border-color 0.2s;
         }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+        }
+
         .empty-state {
             text-align: center;
-            padding: 40px;
-            color: #888;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+        }
+
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .stat-icon.total {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--primary);
+        }
+
+        .stat-icon.easy {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+
+        .stat-icon.medium {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
+        }
+
+        .stat-icon.hard {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--error);
+        }
+
+        .stat-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .table-container {
+            overflow-x: auto;
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-brand">
-            <a href="/">C++ OJ</a>
-            <span style="font-size: 14px; margin-left: 10px;">管理后台</span>
+            <a href="/">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                C++ OJ
+            </a>
         </div>
         <div class="nav-links">
             <a href="/">首页</a>
@@ -114,33 +260,105 @@
     </nav>
 
     <div class="container">
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="stat-icon total">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <h3 id="stat-total">-</h3>
+                    <p>题目总数</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon easy">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <h3 id="stat-easy">-</h3>
+                    <p>简单</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon medium">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="8" y1="15" x2="16" y2="15"></line>
+                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <h3 id="stat-medium">-</h3>
+                    <p>中等</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon hard">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M16 16s-1.5-2-4-2-4 2-4 2"></path>
+                        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                    </svg>
+                </div>
+                <div class="stat-info">
+                    <h3 id="stat-hard">-</h3>
+                    <p>困难</p>
+                </div>
+            </div>
+        </div>
+
         <div class="admin-header">
-            <h1>题目管理</h1>
-            <a href="/admin/problem_edit.html" class="btn-primary">+ 新增题目</a>
+            <div class="page-title-group">
+                <h1 class="page-title">题目管理</h1>
+            </div>
+            <a href="/admin/problem_edit.html" class="btn-primary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                新增题目
+            </a>
         </div>
 
         <div class="search-bar">
             <input type="text" id="search-input" placeholder="搜索题目标题...">
-            <button class="btn-primary" onclick="handleSearch()">搜索</button>
+            <button class="btn-primary btn-sm" onclick="handleSearch()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                搜索
+            </button>
         </div>
 
-        <table class="admin-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>标题</th>
-                    <th>难度</th>
-                    <th>分类</th>
-                    <th>时间限制</th>
-                    <th>内存限制</th>
-                    <th>测试用例</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody id="problems-tbody">
-                <tr><td colspan="8" class="empty-state">加载中...</td></tr>
-            </tbody>
-        </table>
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>标题</th>
+                        <th>难度</th>
+                        <th>分类</th>
+                        <th>时间/内存</th>
+                        <th>测试用例</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="problems-tbody">
+                    <tr><td colspan="7" class="empty-state">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
 
         <div id="pagination" class="pagination"></div>
     </div>
@@ -149,6 +367,7 @@
     <script>
         let currentPage = 1;
         let searchKeyword = '';
+        let stats = { total: 0, easy: 0, medium: 0, hard: 0 };
 
         async function loadProblems() {
             const tbody = document.getElementById('problems-tbody');
@@ -161,20 +380,34 @@
                 });
 
                 if (result.error) {
-                    tbody.innerHTML = `<tr><td colspan="8" class="empty-state">加载失败: ${result.error}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" class="empty-state">加载失败: ${result.error}</td></tr>`;
                     return;
                 }
 
+                calculateStats(result.problems || []);
                 renderProblems(tbody, result.problems || []);
                 renderPagination(result.page, result.totalPages, result.total);
             } catch (e) {
-                tbody.innerHTML = `<tr><td colspan="8" class="empty-state">加载失败: ${e.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="empty-state">加载失败: ${e.message}</td></tr>`;
             }
+        }
+
+        function calculateStats(problems) {
+            stats = { total: problems.length, easy: 0, medium: 0, hard: 0 };
+            problems.forEach(p => {
+                if (p.difficulty === 'easy') stats.easy++;
+                else if (p.difficulty === 'medium') stats.medium++;
+                else if (p.difficulty === 'hard') stats.hard++;
+            });
+            document.getElementById('stat-total').textContent = stats.total;
+            document.getElementById('stat-easy').textContent = stats.easy;
+            document.getElementById('stat-medium').textContent = stats.medium;
+            document.getElementById('stat-hard').textContent = stats.hard;
         }
 
         function renderProblems(tbody, problems) {
             if (problems.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="empty-state">暂无题目</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无题目</td></tr>';
                 return;
             }
 
@@ -185,16 +418,15 @@
 
                 return `
                     <tr>
-                        <td>${p.id}</td>
+                        <td style="color: var(--primary); font-family: 'Space Grotesk', monospace; font-weight: 600;">#${p.id}</td>
                         <td><a href="/problem.html?id=${p.id}">${escapeHtml(p.title)}</a></td>
                         <td><span class="difficulty ${difficultyClass}">${difficultyText}</span></td>
-                        <td>${escapeHtml(tagsText)}</td>
-                        <td>${p.time_limit_ms}ms</td>
-                        <td>${p.memory_limit_mb}MB</td>
-                        <td>${p.test_case_count}</td>
+                        <td style="color: var(--text-secondary); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(tagsText) || '-'}</td>
+                        <td style="color: var(--text-secondary); font-size: 0.85rem;">${p.time_limit_ms}ms<br>${p.memory_limit_mb}MB</td>
+                        <td style="color: var(--text-secondary);"><span style="color: var(--accent);">${p.test_case_count}</span> 个</td>
                         <td class="actions">
                             <a href="/admin/problem_edit.html?id=${p.id}" class="btn-edit btn-sm">编辑</a>
-                            <button class="btn-delete btn-sm" onclick="deleteProblem(${p.id}, '${escapeHtml(p.title)}')">删除</button>
+                            <button class="btn-delete btn-sm" onclick="deleteProblem(${p.id}, '${escapeHtml(p.title.replace(/'/g, "\\'"))}')">删除</button>
                         </td>
                     </tr>
                 `;
@@ -271,6 +503,7 @@
         }
 
         function escapeHtml(text) {
+            if (!text) return '';
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
@@ -285,7 +518,7 @@
                     window.location.href = '/';
                     return;
                 }
-                navUser.innerHTML = `<span>${result.username}</span> | <a href="/logout.html">登出</a>`;
+                navUser.innerHTML = `<span style="color: var(--accent);">${result.username}</span> | <a href="/logout.html" class="btn-logout" style="color: var(--error);">登出</a>`;
             } else {
                 window.location.href = '/login.html';
             }
