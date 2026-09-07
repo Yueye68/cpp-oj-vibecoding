@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提交历史 - C++ OJ</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .submission-card {
+            background: var(--bg-card);
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .submission-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+        }
+
+        .submission-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .submission-problem {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .submission-problem-id {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 600;
+            min-width: 40px;
+        }
+
+        .submission-problem-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .submission-time {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .submission-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .submission-code-link {
+            color: var(--primary);
+            font-size: 0.875rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .submission-code-link:hover {
+            color: var(--secondary);
+        }
+
+        .submission-code-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .no-submissions {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .no-submissions svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+        }
+
+        .no-submissions p {
+            margin-bottom: 20px;
+        }
+
+        .no-submissions .btn {
+            display: inline-flex;
+            padding: 10px 24px;
+            background: var(--primary);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .no-submissions .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .loading-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .filter-group-inline {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .filter-group-inline label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .filter-buttons-mini {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-buttons-mini button {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .filter-buttons-mini button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-buttons-mini button.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                C++ OJ
+            </a>
+        </div>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">首页</a>
+            <a href="problem_list.html">题目</a>
+            <a href="submissions.html" class="active">提交</a>
+            <a href="login.html">登录</a>
+            <a href="register.html">注册</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>我的提交</h1>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group-inline">
+                <label>状态筛选:</label>
+                <div class="filter-buttons-mini">
+                    <button class="status-filter-btn active" data-status="" onclick="setStatusFilter('')">全部</button>
+                    <button class="status-filter-btn" data-status="AC" onclick="setStatusFilter('AC')">AC</button>
+                    <button class="status-filter-btn" data-status="WA" onclick="setStatusFilter('WA')">WA</button>
+                    <button class="status-filter-btn" data-status="CE" onclick="setStatusFilter('CE')">CE</button>
+                    <button class="status-filter-btn" data-status="RE" onclick="setStatusFilter('RE')">RE</button>
+                    <button class="status-filter-btn" data-status="TLE" onclick="setStatusFilter('TLE')">TLE</button>
+                    <button class="status-filter-btn" data-status="MLE" onclick="setStatusFilter('MLE')">MLE</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="submissions-container"></div>
+        <div id="pagination" class="pagination"></div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 C++ OJ System. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/api.js"></script>
+    <script>
+        let currentStatusFilter = '';
+        let allSubmissions = [];
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/me');
+                if (response.ok) {
+                    const user = await response.json();
+                    let adminLink = '';
+                    if (user.role === 'admin') {
+                        adminLink = '<a href="admin/problems.html">题目管理</a>';
+                    }
+                    document.getElementById('nav-links').innerHTML = `
+                        <a href="index.html">首页</a>
+                        <a href="problem_list.html">题目</a>
+                        <a href="submissions.html" class="active">提交</a>
+                        ${adminLink}
+                        <span>${user.username}</span>
+                        <a href="/logout.html" class="btn-logout">登出</a>
+                    `;
+                    return true;
+                }
+            } catch (err) {
+                console.log('Not logged in');
+            }
+            window.location.href = 'login.html';
+            return false;
+        }
+
+        function formatTime(timestamp) {
+            const date = new Date(timestamp * 1000);
+            const now = new Date();
+            const diff = now - date;
+
+            if (diff < 60000) return '刚刚';
+            if (diff < 3600000) return Math.floor(diff / 60000) + ' 分钟前';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + ' 小时前';
+            if (diff < 604800000) return Math.floor(diff / 86400000) + ' 天前';
+
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        function getStatusText(status) {
+            const map = {
+                'AC': '答案正确',
+                'WA': '答案错误',
+                'CE': '编译错误',
+                'RE': '运行时错误',
+                'TLE': '超时',
+                'MLE': '内存超限',
+                'OLE': '输出超限',
+                'PE': '格式错误'
+            };
+            return map[status] || status;
+        }
+
+        function renderSubmissions(submissions) {
+            const container = document.getElementById('submissions-container');
+
+            if (submissions.length === 0) {
+                container.innerHTML = `
+                    <div class="no-submissions">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <p>暂无提交记录</p>
+                        <a href="problem_list.html" class="btn">去刷题</a>
+                    </div>
+                `;
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = submissions.map(sub => `
+                <div class="submission-card fade-in" onclick="viewSubmission(${sub.id})">
+                    <div class="submission-header">
+                        <div class="submission-problem">
+                            <span class="submission-problem-id">#${sub.problem_id}</span>
+                            <span class="submission-problem-title">${sub.problem_title || '题目 #' + sub.problem_id}</span>
+                        </div>
+                        <span class="status-badge status-${sub.status}">${sub.status}</span>
+                    </div>
+                    <div class="submission-footer">
+                        <span class="submission-time">${formatTime(sub.created_at)}</span>
+                        <span class="submission-code-link">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="16 18 22 12 16 6"></polyline>
+                                <polyline points="8 6 2 12 8 18"></polyline>
+                            </svg>
+                            查看代码
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterSubmissions() {
+            let filtered = allSubmissions;
+            if (currentStatusFilter) {
+                filtered = filtered.filter(sub => sub.status === currentStatusFilter);
+            }
+            renderSubmissions(filtered);
+        }
+
+        function setStatusFilter(status) {
+            currentStatusFilter = status;
+            document.querySelectorAll('.status-filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.status === status);
+            });
+            filterSubmissions();
+        }
+
+        function viewSubmission(id) {
+            window.location.href = `problem.html?id=${id}&submission=${id}`;
+        }
+
+        async function loadSubmissions() {
+            const container = document.getElementById('submissions-container');
+            container.innerHTML = `
+                <div class="loading-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <p>加载中...</p>
+                </div>
+            `;
+
+            try {
+                const result = await api.submissions.list();
+                if (result.error) {
+                    container.innerHTML = `
+                        <div class="error" style="text-align:center;padding:60px 20px;">
+                            <p>加载失败: ${result.error}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                allSubmissions = result.submissions || [];
+                filterSubmissions();
+            } catch (e) {
+                container.innerHTML = `
+                    <div class="error" style="text-align:center;padding:60px 20px;">
+                        <p>加载失败: ${e.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function init() {
+            const isLoggedIn = await checkAuth();
+            if (isLoggedIn) {
+                loadSubmissions();
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

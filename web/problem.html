@@ -796,7 +796,7 @@
         </div>
         <div class="nav-links" id="nav-links">
             <a href="index.html">首页</a>
-            <a href="problems.html">题目</a>
+            <a href="problem_list.html">题目</a>
             <a href="login.html">登录</a>
             <a href="register.html">注册</a>
         </div>
@@ -829,7 +829,7 @@ int main() {
                     currentUser = await response.json();
                     document.getElementById('nav-links').innerHTML = `
                         <a href="index.html">首页</a>
-                        <a href="problems.html">题目</a>
+                        <a href="problem_list.html">题目</a>
                         <a href="submissions.html">提交</a>
                         <span>${currentUser.username}</span>
                         <a href="/logout.html" class="btn-logout">登出</a>
@@ -852,7 +852,7 @@ int main() {
 
             const content = document.getElementById('content');
             content.innerHTML = `
-                <a href="problems.html" class="back-link" style="margin-bottom:16px;">
+                <a href="problem_list.html" class="back-link" style="margin-bottom:16px;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
@@ -887,7 +887,7 @@ int main() {
         function showError(message) {
             document.getElementById('content').innerHTML = `
                 <div class="page-header">
-                    <a href="problems.html" class="back-link">
+                    <a href="problem_list.html" class="back-link">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline points="12 19 5 12 12 5"></polyline>
@@ -902,7 +902,7 @@ int main() {
                         <line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
                     <p>${escapeHtml(message)}</p>
-                    <a href="problems.html" class="btn btn-primary" style="margin-top:20px;display:inline-flex;">返回题目列表</a>
+                    <a href="problem_list.html" class="btn btn-primary" style="margin-top:20px;display:inline-flex;">返回题目列表</a>
                 </div>
             `;
         }
@@ -930,7 +930,7 @@ int main() {
             const descriptionHtml = problem.description ? marked.parse(problem.description) : '<p>暂无描述</p>';
 
             document.getElementById('content').innerHTML = `
-                <a href="problems.html" class="back-link" style="margin-bottom:16px;">
+                <a href="problem_list.html" class="back-link" style="margin-bottom:16px;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>

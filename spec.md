@@ -132,7 +132,7 @@ mysql -u root oj_system < database/schema.sql
 | 登录页 | `/login.html` | 账号密码登录 |
 | 注册页 | `/register.html` | 账号密码注册 |
 | 登出页 | `/logout.html` | 销毁会话、跳转登录 |
-| 题目列表页 | `/problems.html` | 题目列表、难度/分类筛选、分页 |
+| 题目列表页 | `/problem_list.html` | 题目列表、难度/分类筛选、分页 |
 | 题目详情页 | `/problem.html?id={id}` | 题目描述、代码编辑器、提交按钮 |
 | 提交历史页 | `/submissions.html` | 我的提交记录列表 |
 | 管理后台-题目列表 | `/admin/problems.html` | 管理员题目列表、增删改查 |
@@ -161,7 +161,7 @@ mysql -u root oj_system < database/schema.sql
 - 清除用户 Session
 - 跳转登录页并提示"已登出"
 
-#### 题目列表页 `/problems.html`
+#### 题目列表页 `/problem_list.html`
 - 题目分页列表（每页 20 题）
 - 难度筛选（全部/简单/中等/困难）
 - 分类标签筛选（多选）
@@ -404,7 +404,7 @@ CREATE TABLE submission_results (
 │   ├── index.html                   # 首页（平台介绍）
 │   ├── login.html                   # 登录页
 │   ├── register.html                # 注册页
-│   ├── problems.html                # 题目列表页
+│   ├── problem_list.html            # 题目列表页
 │   ├── problem.html                 # 题目详情页（编辑器、提交）
 │   ├── submissions.html             # 提交历史页
 │   ├── admin/                       # 管理后台页面
