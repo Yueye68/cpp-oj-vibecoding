@@ -807,6 +807,7 @@
     </div>
 
     <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
     <script>
         let editor = null;
         let problemId = null;
@@ -832,7 +833,7 @@ int main() {
                         <a href="problem_list.html">题目</a>
                         <a href="submissions.html">提交</a>
                         <span>${currentUser.username}</span>
-                        <a href="/logout.html" class="btn-logout">登出</a>
+                        <button type="button" class="btn-logout" onclick="logout()">登出</button>
                     `;
                 }
             } catch (err) {

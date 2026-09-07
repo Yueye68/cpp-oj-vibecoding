@@ -549,6 +549,7 @@
     </div>
 
     <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
     <script>
         const ALL_TAGS = ['算法', '数据结构', '字符串', '数组', '动态规划', '图论', '数学', '搜索', '排序', '贪心'];
         let currentTags = [];
@@ -569,7 +570,7 @@
             }
 
             const navUser = document.getElementById('nav-user');
-            navUser.innerHTML = `<span style="color: var(--accent);">${user.username}</span> | <a href="/logout.html" class="btn-logout" style="color: var(--error);">登出</a>`;
+            navUser.innerHTML = `<span style="color: var(--accent);">${user.username}</span> | <button type="button" class="btn-logout" onclick="logout()" style="color: var(--error);">登出</button>`;
 
             editProblemId = getProblemIdFromUrl();
 

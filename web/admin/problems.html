@@ -364,6 +364,7 @@
     </div>
 
     <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
     <script>
         let currentPage = 1;
         let searchKeyword = '';
@@ -518,7 +519,7 @@
                     window.location.href = '/';
                     return;
                 }
-                navUser.innerHTML = `<span style="color: var(--accent);">${result.username}</span> | <a href="/logout.html" class="btn-logout" style="color: var(--error);">登出</a>`;
+                navUser.innerHTML = `<span style="color: var(--accent);">${result.username}</span> | <button type="button" class="btn-logout" onclick="logout()" style="color: var(--error);">登出</button>`;
             } else {
                 window.location.href = '/login.html';
             }

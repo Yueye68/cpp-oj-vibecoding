@@ -18,3 +18,12 @@ function setCurrentUser(user) {
         sessionStorage.removeItem('user');
     }
 }
+
+async function logout() {
+    try {
+        await api.auth.logout();
+    } finally {
+        setCurrentUser(null);
+        window.location.href = '/index.html';
+    }
+}

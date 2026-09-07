@@ -132,6 +132,9 @@ body::before {
 .nav-links .btn-logout {
     color: var(--error);
     border-color: rgba(239, 68, 68, 0.3);
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .nav-links .btn-logout:hover {
