@@ -97,6 +97,9 @@ target_link_libraries(oj_server oj_core)
 add_executable(create_admin src/tools/create_admin.cpp)
 target_link_libraries(create_admin oj_core)
 
+add_executable(reset_db src/tools/reset_db.cpp)
+target_link_libraries(reset_db oj_core)
+
 add_executable(judge_worker src/tools/main_worker.cpp src/worker/judge_worker.cpp)
 target_link_libraries(judge_worker oj_core)
 
