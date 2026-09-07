@@ -413,27 +413,18 @@
 
         async function loadStats() {
             try {
-                const response = await fetch('/api/problems?page=1&page_size=1');
+                const response = await fetch('/api/stats');
                 if (response.ok) {
                     const data = await response.json();
-                    document.getElementById('problem-count').textContent = data.total || 0;
+                    document.getElementById('problem-count').textContent = data.problems ?? 0;
+                    document.getElementById('user-count').textContent = data.users ?? 0;
+                    document.getElementById('submission-count').textContent = data.submissions ?? 0;
                 }
             } catch (err) {
                 document.getElementById('problem-count').textContent = '0';
-            }
-
-            try {
-                const response = await fetch('/api/auth/me');
-                if (response.ok) {
-                    document.getElementById('user-count').textContent = '1';
-                } else {
-                    document.getElementById('user-count').textContent = '0';
-                }
-            } catch (err) {
                 document.getElementById('user-count').textContent = '0';
+                document.getElementById('submission-count').textContent = '0';
             }
-
-            document.getElementById('submission-count').textContent = '0';
         }
 
         checkAuth();

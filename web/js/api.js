@@ -104,5 +104,10 @@ const api = {
         async get(id) {
             return request('GET', '/submissions/' + id);
         }
+    },
+    stats: {
+        async get() {
+            return request('GET', '/stats');
+        }
     }
 };

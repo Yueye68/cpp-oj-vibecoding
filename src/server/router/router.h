@@ -25,6 +25,7 @@ private:
     void registerProblemRoutes();
     void registerTestCaseRoutes();
     void registerSubmissionRoutes();
+    void registerStatsRoutes();
 
     httplib::Server& svr_ = Server::instance().getServer();
 };

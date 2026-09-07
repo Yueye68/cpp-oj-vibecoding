@@ -3,6 +3,7 @@
 #include "handlers/problem_handler.h"
 #include "handlers/testcase_handler.h"
 #include "handlers/submission_handler.h"
+#include "handlers/stats_handler.h"
 #include "logger.h"
 
 Router& Router::instance() {
@@ -16,7 +17,12 @@ void Router::registerHandlers() {
     registerProblemRoutes();
     registerTestCaseRoutes();
     registerSubmissionRoutes();
+    registerStatsRoutes();
     Logger::instance().info("All routes registered");
+}
+
+void Router::registerStatsRoutes() {
+    svr_.Get("/api/stats", handleGetStats);
 }
 
 void Router::registerAuthRoutes() {

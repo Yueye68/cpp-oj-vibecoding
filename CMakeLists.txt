@@ -71,6 +71,7 @@ set(SERVER_SOURCES
     src/server/handlers/problem_handler.cpp
     src/server/handlers/submission_handler.cpp
     src/server/handlers/testcase_handler.cpp
+    src/server/handlers/stats_handler.cpp
     src/server/middleware/auth_middleware.cpp
 )
 
