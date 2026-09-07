@@ -438,5 +438,230 @@ class TestSubmissions(unittest.TestCase):
         self.assertIn(resp.status_code, [200, 404])
 
 
+class TestEndToEnd(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.admin_client = APIClient()
+        resp = cls.admin_client.post(
+            "/api/auth/login",
+            json={"username": "admin", "password": "admin123"}
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            user_data = data.get("user", data)
+            if user_data.get("role") != "admin":
+                cls.admin_client = APIClient()
+                cls.admin_username = unique_name("e2e_admin")
+                cls.admin_client.post(
+                    "/api/auth/register",
+                    json={"username": cls.admin_username, "password": "admin123"}
+                )
+                cls.admin_client.post(
+                    "/api/auth/login",
+                    json={"username": cls.admin_username, "password": "admin123"}
+                )
+
+        cls.user_client = APIClient()
+        cls.username = unique_name("e2e_user")
+        cls.user_client.post(
+            "/api/auth/register",
+            json={"username": cls.username, "password": "123456"}
+        )
+        cls.user_client.post(
+            "/api/auth/login",
+            json={"username": cls.username, "password": "123456"}
+        )
+
+        resp = cls.admin_client.post(
+            "/api/problems",
+            json={
+                "title": "两数之和-完整测试",
+                "description": "给定一个整数数组 nums 和一个目标值 target，请返回满足 nums[i] + nums[j] = target 的两个数的下标。\n\n**示例**\n输入: nums = [2,7,11,15], target = 9\n输出: [0,1]\n\n**题目来源**: LeetCode 1",
+                "difficulty": "easy",
+                "tags": ["数组", "哈希表"],
+                "time_limit_ms": 1000,
+                "memory_limit_mb": 256
+            }
+        )
+        cls.problem_id = resp.json().get("id") if resp.status_code == 201 else None
+
+        if cls.problem_id:
+            test_cases = [
+                ("4\n2 7 11 15\n9", "0 1"),
+                ("3\n3 2 4\n6", "0 2"),
+                ("2\n3 3\n6", "0 1"),
+            ]
+            cls.testcase_ids = []
+            for i, (inp, out) in enumerate(test_cases):
+                input_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+                input_file.write(inp)
+                input_file.close()
+
+                output_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
+                output_file.write(out)
+                output_file.close()
+
+                with open(input_file.name, 'rb') as f_in, open(output_file.name, 'rb') as f_out:
+                    resp = cls.admin_client.upload_file(
+                        f"/api/problems/{cls.problem_id}/testcases",
+                        files={
+                            "input": f_in,
+                            "output": f_out,
+                            "is_sample": "1" if i == 0 else "0"
+                        }
+                    )
+                os.unlink(input_file.name)
+                os.unlink(output_file.name)
+                if resp.status_code == 201:
+                    cls.testcase_ids.append(resp.json().get("id"))
+
+    def test_e2e_problem_flow(self):
+        if not self.problem_id:
+            self.skipTest("Problem not created")
+        resp = self.admin_client.get(f"/api/problems/{self.problem_id}")
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertEqual(data.get("title"), "两数之和-完整测试")
+        self.assertEqual(data.get("difficulty"), "easy")
+        self.assertIn("哈希表", data.get("tags", []))
+
+    def test_e2e_submission_ac(self):
+        if not self.problem_id:
+            self.skipTest("Problem not created")
+        code = """#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int, int> mp;
+        for (int i = 0; i < nums.size(); ++i) {
+            int complement = target - nums[i];
+            if (mp.find(complement) != mp.end()) {
+                return {mp[complement], i};
+            }
+            mp[nums[i]] = i;
+        }
+        return {};
+    }
+};
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    
+    int n;
+    vector<int> nums;
+    int target;
+    
+    if (!(cin >> n)) return 0;
+    nums.resize(n);
+    for (int i = 0; i < n; ++i) cin >> nums[i];
+    cin >> target;
+    
+    Solution sol;
+    vector<int> result = sol.twoSum(nums, target);
+    
+    if (result.size() == 2) {
+        cout << result[0] << " " << result[1] << endl;
+    }
+    
+    return 0;
+}"""
+
+        resp = self.user_client.post(
+            "/api/submissions",
+            json={"problem_id": self.problem_id, "code": code, "language": "cpp"}
+        )
+        self.assertEqual(resp.status_code, 201)
+        submission_id = resp.json().get("id")
+
+        result_data, queue_status = self.user_client.poll_submission(submission_id, timeout=60)
+        self.assertEqual(queue_status, "completed")
+        self.assertEqual(result_data.get("status"), "AC")
+        self.assertIsNotNone(result_data.get("execute_time_ms"))
+
+    def test_e2e_submission_wa(self):
+        if not self.problem_id:
+            self.skipTest("Problem not created")
+        code = """#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    cout << "0 0" << endl;
+    return 0;
+}"""
+
+        resp = self.user_client.post(
+            "/api/submissions",
+            json={"problem_id": self.problem_id, "code": code, "language": "cpp"}
+        )
+        self.assertEqual(resp.status_code, 201)
+        submission_id = resp.json().get("id")
+
+        result_data, queue_status = self.user_client.poll_submission(submission_id, timeout=60)
+        self.assertEqual(queue_status, "completed")
+        self.assertEqual(result_data.get("status"), "WA")
+
+    def test_e2e_submission_ce(self):
+        if not self.problem_id:
+            self.skipTest("Problem not created")
+        code = """#include <bits/stdc++.h>
+using namespace std;
+int main() {
+    undefined_function();
+    return 0;
+}"""
+
+        resp = self.user_client.post(
+            "/api/submissions",
+            json={"problem_id": self.problem_id, "code": code, "language": "cpp"}
+        )
+        self.assertEqual(resp.status_code, 201)
+        submission_id = resp.json().get("id")
+
+        result_data, queue_status = self.user_client.poll_submission(submission_id, timeout=60)
+        self.assertEqual(queue_status, "completed")
+        self.assertEqual(result_data.get("status"), "CE")
+        self.assertIsNotNone(result_data.get("error_detail"))
+
+    def test_e2e_problem_list_pagination(self):
+        resp = self.user_client.get("/api/problems", params={"page": 1, "pageSize": 5})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        self.assertIn("problems", data)
+        self.assertIn("total", data)
+        self.assertLessEqual(len(data.get("problems", [])), 5)
+
+    def test_e2e_problem_filter_difficulty(self):
+        resp = self.user_client.get("/api/problems", params={"difficulty": "easy"})
+        self.assertEqual(resp.status_code, 200)
+        data = resp.json()
+        for p in data.get("problems", []):
+            self.assertEqual(p.get("difficulty"), "easy")
+
+    def test_e2e_submission_detail_results(self):
+        if not self.problem_id:
+            self.skipTest("Problem not created")
+
+        code = """#include <bits/stdc++.h>
+using namespace std;
+int main() { return 0; }"""
+
+        resp = self.user_client.post(
+            "/api/submissions",
+            json={"problem_id": self.problem_id, "code": code, "language": "cpp"}
+        )
+        self.assertEqual(resp.status_code, 201)
+        submission_id = resp.json().get("id")
+
+        result_data, queue_status = self.user_client.poll_submission(submission_id, timeout=60)
+        self.assertEqual(queue_status, "completed")
+
+        detail_resp = self.user_client.get(f"/api/submissions/{submission_id}")
+        self.assertEqual(detail_resp.status_code, 200)
+        detail_data = detail_resp.json()
+        self.assertIn("results", detail_data)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
