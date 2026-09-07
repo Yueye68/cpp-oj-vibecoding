@@ -502,7 +502,7 @@ CREATE TABLE submission_results (
 
 - [x] 端到端功能测试
 - [x] 沙箱安全性验证
-- [ ] 性能压测
+- [x] 性能压测
 
 ---
 
