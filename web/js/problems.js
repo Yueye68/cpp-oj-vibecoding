@@ -1,4 +1,4 @@
-const ALL_TAGS = ['算法', '数据结构', '字符串', '数组', '动态规划', '图论', '数学', '搜索', '排序', '贪心'];
+const FALLBACK_TAGS = ['算法', '数据结构', '字符串', '数组', '动态规划', '图论', '数学', '搜索', '排序', '贪心'];
 
 let currentPage = 1;
 let currentFilters = {
@@ -6,6 +6,7 @@ let currentFilters = {
     tags: [],
     search: ''
 };
+let availableTags = [];
 
 async function loadProblems() {
     const container = document.getElementById('problems-container');
@@ -36,7 +37,11 @@ async function loadProblems() {
 
 function renderProblems(container, problems) {
     if (problems.length === 0) {
-        container.innerHTML = '<div class="empty">暂无题目</div>';
+        const hasFilter = currentFilters.tags.length > 0 || currentFilters.difficulty || currentFilters.search;
+        const msg = hasFilter
+            ? '当前筛选条件下暂无题目，<a href="javascript:location.reload()">清除筛选</a>'
+            : '暂无题目';
+        container.innerHTML = `<div class="empty">${msg}</div>`;
         return;
     }
 
@@ -151,7 +156,7 @@ function escapeHtml(text) {
 }
 
 function initProblemsPage() {
-    renderTagFilters();
+    loadTagFilters();
     loadProblems();
 
     const searchInput = document.getElementById('search-input');
@@ -164,11 +169,25 @@ function initProblemsPage() {
     }
 }
 
-function renderTagFilters() {
+async function loadTagFilters() {
     const container = document.getElementById('tags-filter');
     if (!container) return;
 
-    container.innerHTML = ALL_TAGS.map(tag => `
+    let tags = FALLBACK_TAGS;
+    try {
+        const result = await api.problems.listTags();
+        if (result && Array.isArray(result.tags) && result.tags.length > 0) {
+            availableTags = result.tags;
+            tags = result.tags.map(t => t.name);
+        } else {
+            availableTags = tags.map(name => ({ name, count: 0 }));
+        }
+    } catch (e) {
+        availableTags = tags.map(name => ({ name, count: 0 }));
+    }
+
+    container.innerHTML = tags.map(tag => `
         <button class="tag-filter" data-tag="${tag}" onclick="toggleTagFilter('${tag}')">${tag}</button>
     `).join('');
+    updateFilterUI();
 }

@@ -30,4 +30,6 @@ struct User {
     static std::optional<User> findByUsername(const std::string& username);
     static std::vector<User> findAll(int page = 1, int pageSize = 20);
     static int count();
+
+    static bool removeWithCascade(int userId);
 };

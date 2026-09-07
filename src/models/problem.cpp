@@ -2,6 +2,7 @@
 #include "logger.h"
 #include <sstream>
 #include <regex>
+#include <cstring>
 
 std::string Problem::difficultyToString(Difficulty d) {
     switch (d) {
@@ -415,4 +416,44 @@ int Problem::count(const std::string& difficulty, const std::vector<std::string>
     mysql_free_result(result);
     ConnectionPool::instance().returnConnection(conn);
     return count;
+}
+
+std::vector<std::pair<std::string, int>> Problem::listTagsWithCount() {
+    std::vector<std::pair<std::string, int>> result;
+
+    MYSQL* conn = ConnectionPool::instance().getConnection();
+    if (!conn) {
+        Logger::instance().error("Failed to get database connection for Problem::listTagsWithCount");
+        return result;
+    }
+
+    const char* query =
+        "SELECT tag, COUNT(*) AS cnt FROM problems, "
+        "JSON_TABLE(problems.tags, '$[*]' COLUMNS (tag VARCHAR(64) PATH '$')) AS jt "
+        "GROUP BY tag ORDER BY cnt DESC, tag ASC";
+
+    if (mysql_real_query(conn, query, std::strlen(query)) != 0) {
+        Logger::instance().error("Failed to list tags: " + std::string(mysql_error(conn)));
+        ConnectionPool::instance().returnConnection(conn);
+        return result;
+    }
+
+    MYSQL_RES* res = mysql_store_result(conn);
+    if (!res) {
+        ConnectionPool::instance().returnConnection(conn);
+        return result;
+    }
+
+    MYSQL_ROW row;
+    while ((row = mysql_fetch_row(res)) != nullptr) {
+        std::string tag = row[0] ? row[0] : "";
+        int cnt = row[1] ? std::stoi(row[1]) : 0;
+        if (!tag.empty()) {
+            result.emplace_back(std::move(tag), cnt);
+        }
+    }
+
+    mysql_free_result(res);
+    ConnectionPool::instance().returnConnection(conn);
+    return result;
 }

@@ -163,6 +163,136 @@ body::before {
     transform: translateY(1px);
 }
 
+.nav-links .nav-user-link {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.nav-links .nav-user-link:hover {
+    color: var(--text-primary);
+    background: rgba(0, 255, 159, 0.1);
+    border-color: rgba(0, 255, 159, 0.3);
+}
+
+.account-info {
+    margin: 24px 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.account-info .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.account-info .info-row:last-child {
+    border-bottom: none;
+}
+
+.account-info .info-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.account-info .info-value {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.danger-zone {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+}
+
+.danger-zone h2 {
+    font-size: 1rem;
+    color: var(--error);
+    margin: 0 0 8px 0;
+    font-weight: 600;
+}
+
+.danger-zone .danger-hint {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin: 0 0 16px 0;
+    line-height: 1.5;
+}
+
+.btn-danger {
+    background: var(--error);
+    color: #fff;
+    border: 1px solid var(--error);
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.btn-danger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 420px;
+    width: 100%;
+}
+
+.modal h3 {
+    margin: 0 0 12px 0;
+    color: var(--error);
+    font-size: 1.2rem;
+}
+
+.modal p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0 0 24px 0;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
 .container {
     max-width: 1200px;
     margin: 0 auto;

@@ -243,3 +243,19 @@ void handleDeleteProblem(const httplib::Request& req, httplib::Response& res) {
     res.status = 200;
     res.set_content("{\"message\": \"Problem deleted successfully\"}", "application/json");
 }
+
+void handleListProblemTags(const httplib::Request& req, httplib::Response& res) {
+    (void)req;
+    auto tagCounts = Problem::listTagsWithCount();
+
+    Json::Value response(Json::objectValue);
+    Json::Value arr(Json::arrayValue);
+    for (const auto& [name, count] : tagCounts) {
+        Json::Value item;
+        item["name"] = name;
+        item["count"] = count;
+        arr.append(item);
+    }
+    response["tags"] = arr;
+    res.set_content(response.toStyledString(), "application/json");
+}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账户设置 - C++ OJ System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="index.html">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"></polyline>
+                    <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                C++ OJ
+            </a>
+        </div>
+        <div class="nav-links" id="nav-links">
+            <a href="index.html">首页</a>
+            <a href="problem_list.html">题目</a>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card fade-in">
+            <div class="auth-header">
+                <div class="icon-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <h1>账户设置</h1>
+                <p>管理您的账户信息</p>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div class="account-info" id="account-info">
+                <div class="info-row">
+                    <span class="info-label">用户名</span>
+                    <span class="info-value" id="info-username">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">角色</span>
+                    <span class="info-value" id="info-role">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">注册时间</span>
+                    <span class="info-value" id="info-created">-</span>
+                </div>
+            </div>
+
+            <div class="danger-zone">
+                <h2>危险操作</h2>
+                <p class="danger-hint">注销账号将永久删除您的账户、提交记录和相关数据，且不可恢复。</p>
+                <button type="button" class="btn btn-danger" id="delete-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                        <path d="M10 11v6"></path>
+                        <path d="M14 11v6"></path>
+                        <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    注销我的账号
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirm-modal" style="display:none;">
+        <div class="modal">
+            <h3>确认注销账号？</h3>
+            <p>此操作将永久删除您的账户、提交记录和测试历史。此操作不可撤销。</p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" id="modal-cancel">取消</button>
+                <button type="button" class="btn btn-danger" id="modal-confirm">确认注销</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        function showAlert(message, type = 'error') {
+            const container = document.getElementById('alert-container');
+            const iconSvg = type === 'error'
+                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>'
+                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+            container.innerHTML = `<div class="alert alert-${type}">${iconSvg}<span>${message}</span></div>`;
+        }
+
+        async function loadAccount() {
+            try {
+                const user = await api.auth.me();
+                if (!user || !user.username) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                document.getElementById('info-username').textContent = user.username;
+                document.getElementById('info-role').textContent = user.role === 'admin' ? '管理员' : '普通用户';
+                document.getElementById('info-created').textContent = user.created_at || '-';
+
+                let adminLink = '';
+                if (user.role === 'admin') {
+                    adminLink = '<a href="admin/problems.html">题目管理</a>';
+                }
+                document.getElementById('nav-links').innerHTML = `
+                    <a href="index.html">首页</a>
+                    <a href="problem_list.html">题目</a>
+                    <a href="submissions.html">提交</a>
+                    ${adminLink}
+                    <a href="account.html" class="nav-user-link active">${user.username}</a>
+                    <button type="button" class="btn-logout" onclick="logout()">登出</button>
+                `;
+
+                if (user.role === 'admin') {
+                    const btn = document.getElementById('delete-btn');
+                    btn.disabled = true;
+                    btn.title = '管理员账号不能在此处注销';
+                    showAlert('管理员账号不能通过此界面注销，请联系系统管理员', 'error');
+                }
+            } catch (err) {
+                window.location.href = '/login.html';
+            }
+        }
+
+        document.getElementById('delete-btn').addEventListener('click', () => {
+            document.getElementById('confirm-modal').style.display = 'flex';
+        });
+
+        document.getElementById('modal-cancel').addEventListener('click', () => {
+            document.getElementById('confirm-modal').style.display = 'none';
+        });
+
+        document.getElementById('modal-confirm').addEventListener('click', async () => {
+            const confirmBtn = document.getElementById('modal-confirm');
+            const cancelBtn = document.getElementById('modal-cancel');
+            confirmBtn.disabled = true;
+            cancelBtn.disabled = true;
+            confirmBtn.textContent = '处理中...';
+
+            try {
+                const resp = await fetch('/api/auth/me', { method: 'DELETE', credentials: 'include' });
+                if (resp.ok) {
+                    setCurrentUser(null);
+                    document.getElementById('confirm-modal').style.display = 'none';
+                    showAlert('账号已注销，感谢您的使用。3 秒后跳转到首页...', 'success');
+                    setTimeout(() => { window.location.href = '/index.html'; }, 3000);
+                } else {
+                    const data = await resp.json().catch(() => ({}));
+                    showAlert(data.error || '注销失败，请稍后重试');
+                    confirmBtn.disabled = false;
+                    cancelBtn.disabled = false;
+                    confirmBtn.textContent = '确认注销';
+                }
+            } catch (err) {
+                showAlert('网络错误，请稍后重试');
+                confirmBtn.disabled = false;
+                cancelBtn.disabled = false;
+                confirmBtn.textContent = '确认注销';
+            }
+        });
+
+        loadAccount();
+    </script>
+</body>
+</html>

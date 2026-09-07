@@ -30,10 +30,12 @@ void Router::registerAuthRoutes() {
     svr_.Post("/api/auth/login", handleLogin);
     svr_.Post("/api/auth/logout", handleLogout);
     svr_.Get("/api/auth/me", handleGetCurrentUser);
+    svr_.Delete("/api/auth/me", handleDeleteAccount);
 }
 
 void Router::registerProblemRoutes() {
     svr_.Get("/api/problems", handleListProblems);
+    svr_.Get("/api/problems/tags", handleListProblemTags);
     svr_.Get("/api/problems/:id", handleGetProblem);
     svr_.Post("/api/problems", handleCreateProblem);
     svr_.Put("/api/problems/:id", handleUpdateProblem);

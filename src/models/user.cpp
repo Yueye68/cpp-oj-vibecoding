@@ -286,3 +286,55 @@ int User::count() {
     ConnectionPool::instance().returnConnection(conn);
     return count;
 }
+
+bool User::removeWithCascade(int userId) {
+    if (userId <= 0) return false;
+
+    MYSQL* conn = ConnectionPool::instance().getConnection();
+    if (!conn) {
+        Logger::instance().error("Failed to get database connection for User::removeWithCascade");
+        return false;
+    }
+
+    if (mysql_query(conn, "START TRANSACTION") != 0) {
+        Logger::instance().error("Failed to start transaction: " + std::string(mysql_error(conn)));
+        ConnectionPool::instance().returnConnection(conn);
+        return false;
+    }
+
+    std::string idStr = std::to_string(userId);
+
+    std::string q1 = "DELETE FROM submission_results WHERE submission_id IN (SELECT id FROM submissions WHERE user_id = " + idStr + ")";
+    if (mysql_real_query(conn, q1.c_str(), q1.size()) != 0) {
+        Logger::instance().error("Failed to delete submission_results: " + std::string(mysql_error(conn)));
+        mysql_query(conn, "ROLLBACK");
+        ConnectionPool::instance().returnConnection(conn);
+        return false;
+    }
+
+    std::string q2 = "DELETE FROM submissions WHERE user_id = " + idStr;
+    if (mysql_real_query(conn, q2.c_str(), q2.size()) != 0) {
+        Logger::instance().error("Failed to delete submissions: " + std::string(mysql_error(conn)));
+        mysql_query(conn, "ROLLBACK");
+        ConnectionPool::instance().returnConnection(conn);
+        return false;
+    }
+
+    std::string q3 = "DELETE FROM users WHERE id = " + idStr;
+    if (mysql_real_query(conn, q3.c_str(), q3.size()) != 0) {
+        Logger::instance().error("Failed to delete user: " + std::string(mysql_error(conn)));
+        mysql_query(conn, "ROLLBACK");
+        ConnectionPool::instance().returnConnection(conn);
+        return false;
+    }
+
+    if (mysql_query(conn, "COMMIT") != 0) {
+        Logger::instance().error("Failed to commit delete: " + std::string(mysql_error(conn)));
+        mysql_query(conn, "ROLLBACK");
+        ConnectionPool::instance().returnConnection(conn);
+        return false;
+    }
+
+    ConnectionPool::instance().returnConnection(conn);
+    return true;
+}

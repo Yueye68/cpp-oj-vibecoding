@@ -43,4 +43,5 @@ struct Problem {
     static int count(const std::string& difficulty = "",
                      const std::vector<std::string>& tags = {},
                      const std::string& search = "");
+    static std::vector<std::pair<std::string, int>> listTagsWithCount();
 };

@@ -67,7 +67,18 @@ curl -s -X POST http://localhost:8080/api/auth/logout \
 
 **预期响应**: `200 OK`
 
-### 2.5 错误测试 - 密码错误
+### 2.5 注销账号
+
+```bash
+curl -s -X DELETE http://localhost:8080/api/auth/me \
+  -b /tmp/cookies.txt \
+  -w "\nHTTP Status: %{http_code}\n"
+```
+
+**预期响应**: `200 OK`，账号及提交记录被永久删除
+**注意**: 管理员账号禁止通过此接口自删，将返回 `403 Forbidden`
+
+### 2.6 错误测试 - 密码错误
 
 ```bash
 curl -s -X POST http://localhost:8080/api/auth/login \
@@ -131,6 +142,20 @@ curl -s "http://localhost:8080/api/problems?page=1&pageSize=10" \
 ```
 
 **预期响应**: `200 OK`
+
+支持筛选参数：
+- `difficulty=easy|medium|hard` — 按难度
+- `tags=算法,数组` — 按标签（任一命中，逗号分隔）
+- `search=xxx` — 按标题模糊搜索
+
+### 3.4.1 获取题目所有标签
+
+```bash
+curl -s "http://localhost:8080/api/problems/tags" \
+  -w "\nHTTP Status: %{http_code}\n"
+```
+
+**预期响应**: `200 OK`，返回 `{ "tags": [ { "name": "算法", "count": 3 }, ... ] }`
 
 ### 3.5 更新题目
 
@@ -502,8 +527,10 @@ echo -e "\n===== 测试完成 ====="
 | 注册 | POST | /api/auth/register | 201 |
 | 登录 | POST | /api/auth/login | 200 |
 | 登出 | POST | /api/auth/logout | 200 |
+| 注销账号 | DELETE | /api/auth/me | 200 / 401 / 403 |
 | 当前用户 | GET | /api/auth/me | 200 |
 | 题目列表 | GET | /api/problems | 200 |
+| 题目标签 | GET | /api/problems/tags | 200 |
 | 题目详情 | GET | /api/problems/:id | 200 / 404 |
 | 创建题目 | POST | /api/problems | 201 / 401 / 403 |
 | 更新题目 | PUT | /api/problems/:id | 200 / 404 |

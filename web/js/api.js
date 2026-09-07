@@ -56,6 +56,9 @@ const api = {
         },
         async me() {
             return request('GET', '/auth/me');
+        },
+        async deleteAccount() {
+            return request('DELETE', '/auth/me');
         }
     },
     problems: {
@@ -84,6 +87,9 @@ const api = {
         },
         async getTestCases(problemId) {
             return request('GET', '/problems/' + problemId + '/testcases');
+        },
+        async listTags() {
+            return request('GET', '/problems/tags');
         }
     },
     testCases: {

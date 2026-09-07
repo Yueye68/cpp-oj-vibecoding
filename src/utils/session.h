@@ -30,6 +30,7 @@ public:
     bool validateSession(const std::string& token);
     std::optional<User> getUser(const std::string& token);
     bool destroySession(const std::string& token);
+    int destroySessionsByUserId(int userId);
     void cleanExpiredSessions();
     void clearAllSessions();
 

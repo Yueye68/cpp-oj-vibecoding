@@ -59,6 +59,23 @@ bool SessionManager::destroySession(const std::string& token) {
     return true;
 }
 
+int SessionManager::destroySessionsByUserId(int userId) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    int n = 0;
+    for (auto it = sessions_.begin(); it != sessions_.end(); ) {
+        if (it->second.user.id == userId) {
+            it = sessions_.erase(it);
+            ++n;
+        } else {
+            ++it;
+        }
+    }
+    if (n > 0) {
+        Logger::instance().info("Destroyed " + std::to_string(n) + " session(s) for user id: " + std::to_string(userId));
+    }
+    return n;
+}
+
 void SessionManager::cleanExpiredSessions() {
     std::lock_guard<std::mutex> lock(mutex_);
     for (auto it = sessions_.begin(); it != sessions_.end(); ) {

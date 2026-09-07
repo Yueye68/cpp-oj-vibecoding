@@ -137,3 +137,42 @@ void handleGetCurrentUser(const httplib::Request& req, httplib::Response& res) {
 
     res.set_content(response.toStyledString(), "application/json");
 }
+
+void handleDeleteAccount(const httplib::Request& req, httplib::Response& res) {
+    auto userOpt = AuthMiddleware::getCurrentUser(req);
+    if (!userOpt.has_value()) {
+        res.status = 401;
+        res.set_content("{\"error\": \"Not authenticated\"}", "application/json");
+        return;
+    }
+
+    User& user = userOpt.value();
+
+    if (user.role == UserRole::Admin) {
+        res.status = 403;
+        res.set_content("{\"error\": \"Admin accounts cannot be self-deleted via API\"}", "application/json");
+        return;
+    }
+
+    std::string username = user.username;
+    int userId = user.id;
+
+    std::string token = getSessionToken(req);
+
+    if (!User::removeWithCascade(userId)) {
+        Logger::instance().error("Failed to delete account: " + username);
+        res.status = 500;
+        res.set_content("{\"error\": \"Failed to delete account\"}", "application/json");
+        return;
+    }
+
+    if (!token.empty()) {
+        SessionManager::instance().destroySession(token);
+    }
+    SessionManager::instance().destroySessionsByUserId(userId);
+
+    Logger::instance().info("Account deleted: " + username);
+    res.status = 200;
+    res.set_header("Set-Cookie", "session_token=; HttpOnly; Path=/; Max-Age=0");
+    res.set_content("{\"message\": \"Account deleted\"}", "application/json");
+}
