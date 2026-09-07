@@ -500,7 +500,7 @@ CREATE TABLE submission_results (
 
 ### Phase 8: 集成与测试
 
-- [ ] 端到端功能测试
+- [x] 端到端功能测试
 - [ ] 沙箱安全性验证
 - [ ] 性能压测
 

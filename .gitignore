@@ -15,5 +15,11 @@ oj_server
 *.o
 *.a
 
+# Python缓存
+__pycache__/
+*.pyc
+*.pyo
+
 .opencode/
 test_cases/
+logs/
