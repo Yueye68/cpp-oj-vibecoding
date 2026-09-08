@@ -128,6 +128,7 @@ void handleListSubmissions(const httplib::Request& req, httplib::Response& res) 
         js["id"] = s.id;
         js["user_id"] = s.user_id;
         js["problem_id"] = s.problem_id;
+        js["problem_title"] = s.problem_title;
         js["language"] = s.language;
         js["status"] = s.status;
         js["queue_status"] = s.queue_status;

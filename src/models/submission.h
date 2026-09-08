@@ -18,6 +18,7 @@ struct Submission {
     int execute_time_ms = 0;
     int execute_memory_kb = 0;
     std::string created_at;
+    std::string problem_title;
 
     bool create();
     bool update();

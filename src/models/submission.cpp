@@ -219,7 +219,7 @@ std::vector<Submission> Submission::findAll(int page, int pageSize) {
         return submissions;
     }
 
-    std::string query = "SELECT id, user_id, problem_id, code, language, status, queue_status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions ORDER BY id DESC LIMIT " +
+    std::string query = "SELECT s.id, s.user_id, s.problem_id, s.code, s.language, s.status, s.queue_status, s.error_detail, s.execute_time_ms, s.execute_memory_kb, s.created_at, p.title FROM submissions s LEFT JOIN problems p ON s.problem_id = p.id ORDER BY s.id DESC LIMIT " +
                        std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
@@ -248,6 +248,7 @@ std::vector<Submission> Submission::findAll(int page, int pageSize) {
         sub.execute_time_ms = row[8] ? std::stoi(row[8]) : 0;
         sub.execute_memory_kb = row[9] ? std::stoi(row[9]) : 0;
         sub.created_at = row[10] ? row[10] : "";
+        sub.problem_title = row[11] ? row[11] : "";
         submissions.push_back(sub);
     }
 
@@ -265,8 +266,8 @@ std::vector<Submission> Submission::findByUserId(int userId, int page, int pageS
         return submissions;
     }
 
-    std::string query = "SELECT id, user_id, problem_id, code, language, status, queue_status, error_detail, execute_time_ms, execute_memory_kb, created_at FROM submissions WHERE user_id = " +
-                       std::to_string(userId) + " ORDER BY id DESC LIMIT " + std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
+    std::string query = "SELECT s.id, s.user_id, s.problem_id, s.code, s.language, s.status, s.queue_status, s.error_detail, s.execute_time_ms, s.execute_memory_kb, s.created_at, p.title FROM submissions s LEFT JOIN problems p ON s.problem_id = p.id WHERE s.user_id = " +
+                       std::to_string(userId) + " ORDER BY s.id DESC LIMIT " + std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
         Logger::instance().error("Failed to find submissions by user id: " + std::string(mysql_error(conn)));
@@ -294,6 +295,7 @@ std::vector<Submission> Submission::findByUserId(int userId, int page, int pageS
         sub.execute_time_ms = row[8] ? std::stoi(row[8]) : 0;
         sub.execute_memory_kb = row[9] ? std::stoi(row[9]) : 0;
         sub.created_at = row[10] ? row[10] : "";
+        sub.problem_title = row[11] ? row[11] : "";
         submissions.push_back(sub);
     }
 

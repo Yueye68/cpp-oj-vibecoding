@@ -844,11 +844,19 @@ int main() {
 
         async function loadProblem() {
             const params = new URLSearchParams(window.location.search);
-            problemId = params.get('id');
+            problemId = params.get('problem_id') || params.get('id');
+            const submissionIdParam = params.get('submission');
 
             if (!problemId) {
                 showError('缺少题目ID参数');
                 return;
+            }
+
+            if (submissionIdParam) {
+                const parsed = parseInt(submissionIdParam);
+                if (!isNaN(parsed) && parsed > 0) {
+                    lastSubmissionId = parsed;
+                }
             }
 
             const content = document.getElementById('content');

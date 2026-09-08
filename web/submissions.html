@@ -251,7 +251,10 @@
         }
 
         function formatTime(timestamp) {
-            const date = new Date(timestamp * 1000);
+            if (!timestamp) return '-';
+            const iso = typeof timestamp === 'string' ? timestamp.replace(' ', 'T') : timestamp;
+            const date = new Date(iso);
+            if (isNaN(date.getTime())) return '-';
             const now = new Date();
             const diff = now - date;
 
@@ -296,7 +299,7 @@
             }
 
             container.innerHTML = submissions.map(sub => `
-                <div class="submission-card fade-in" onclick="viewSubmission(${sub.id})">
+                <div class="submission-card fade-in" onclick='viewSubmission(${JSON.stringify(sub)})'>
                     <div class="submission-header">
                         <div class="submission-problem">
                             <span class="submission-problem-id">#${sub.problem_id}</span>
@@ -334,8 +337,10 @@
             filterSubmissions();
         }
 
-        function viewSubmission(id) {
-            window.location.href = `problem.html?id=${id}&submission=${id}`;
+        function viewSubmission(sub) {
+            const submissionId = sub && sub.id !== undefined ? sub.id : sub;
+            const problemId = sub && sub.problem_id !== undefined ? sub.problem_id : submissionId;
+            window.location.href = `problem.html?problem_id=${problemId}&submission=${submissionId}`;
         }
 
         async function loadSubmissions() {
