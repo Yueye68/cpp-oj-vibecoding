@@ -1157,22 +1157,62 @@ int main() {
             `;
         }
 
+        let submissionPollInterval = null;
+
         async function loadSubmissionResult(submissionId) {
             const resultPanel = document.getElementById('result-panel');
             if (!resultPanel) return;
 
+            if (submissionPollInterval) {
+                clearInterval(submissionPollInterval);
+                submissionPollInterval = null;
+            }
+
             resultPanel.innerHTML = '<div class="loading" style="padding:20px;text-align:center;">加载结果中...</div>';
 
-            try {
-                const result = await api.submissions.get(submissionId);
-                if (result.error) {
+            async function pollResult() {
+                try {
+                    const result = await api.submissions.get(submissionId);
+                    if (result.error) {
+                        resultPanel.innerHTML = '';
+                        if (submissionPollInterval) {
+                            clearInterval(submissionPollInterval);
+                            submissionPollInterval = null;
+                        }
+                        return;
+                    }
+
+                    if (result.queue_status === 'completed' || result.status !== 'pending') {
+                        renderResult(result);
+                        if (submissionPollInterval) {
+                            clearInterval(submissionPollInterval);
+                            submissionPollInterval = null;
+                        }
+                    } else {
+                        resultPanel.innerHTML = `
+                            <div class="result-panel">
+                                <div class="result-header">
+                                    <h3>评测结果</h3>
+                                    <span class="result-status pending">${result.status} - 等待评测</span>
+                                </div>
+                                <div class="result-meta">
+                                    <div class="result-meta-item">提交时间: <span>${formatTime(result.created_at)}</span></div>
+                                    <div class="result-meta-item" style="color:var(--text-secondary);">正在等待判题队列处理，请稍候...</div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (e) {
                     resultPanel.innerHTML = '';
-                    return;
+                    if (submissionPollInterval) {
+                        clearInterval(submissionPollInterval);
+                        submissionPollInterval = null;
+                    }
                 }
-                renderResult(result);
-            } catch (e) {
-                resultPanel.innerHTML = '';
             }
+
+            await pollResult();
+            submissionPollInterval = setInterval(pollResult, 2000);
         }
 
         function renderResult(submission) {

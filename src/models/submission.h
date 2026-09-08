@@ -29,9 +29,13 @@ struct Submission {
 
     static std::optional<Submission> findById(int id);
     static std::vector<Submission> findAll(int page = 1, int pageSize = 20);
+    static std::vector<Submission> findAll(const std::string& status, int page, int pageSize);
     static std::vector<Submission> findByUserId(int userId, int page = 1, int pageSize = 20);
+    static std::vector<Submission> findByUserId(int userId, const std::string& status, int page, int pageSize);
     static std::vector<Submission> findByProblemId(int problemId, int page = 1, int pageSize = 20);
     static int countAll();
+    static int countAll(const std::string& status);
     static int countByUserId(int userId);
+    static int countByUserId(int userId, const std::string& status);
     static int countByProblemId(int problemId);
 };

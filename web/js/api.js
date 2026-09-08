@@ -104,8 +104,14 @@ const api = {
         async create(data) {
             return request('POST', '/submissions', data);
         },
-        async list() {
-            return request('GET', '/submissions');
+        async list(params = {}) {
+            const query = new URLSearchParams();
+            if (params.page) query.set('page', params.page);
+            if (params.pageSize) query.set('pageSize', params.pageSize);
+            if (params.status) query.set('status', params.status);
+
+            const queryStr = query.toString();
+            return request('GET', '/submissions' + (queryStr ? '?' + queryStr : ''));
         },
         async get(id) {
             return request('GET', '/submissions/' + id);

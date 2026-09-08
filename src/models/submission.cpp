@@ -211,6 +211,10 @@ std::optional<Submission> Submission::findById(int submissionId) {
 }
 
 std::vector<Submission> Submission::findAll(int page, int pageSize) {
+    return findAll("", page, pageSize);
+}
+
+std::vector<Submission> Submission::findAll(const std::string& status, int page, int pageSize) {
     std::vector<Submission> submissions;
 
     MYSQL* conn = ConnectionPool::instance().getConnection();
@@ -219,8 +223,11 @@ std::vector<Submission> Submission::findAll(int page, int pageSize) {
         return submissions;
     }
 
-    std::string query = "SELECT s.id, s.user_id, s.problem_id, s.code, s.language, s.status, s.queue_status, s.error_detail, s.execute_time_ms, s.execute_memory_kb, s.created_at, p.title FROM submissions s LEFT JOIN problems p ON s.problem_id = p.id ORDER BY s.id DESC LIMIT " +
-                       std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
+    std::string query = "SELECT s.id, s.user_id, s.problem_id, s.code, s.language, s.status, s.queue_status, s.error_detail, s.execute_time_ms, s.execute_memory_kb, s.created_at, p.title FROM submissions s LEFT JOIN problems p ON s.problem_id = p.id";
+    if (!status.empty()) {
+        query += " WHERE s.status = " + escapeString(conn, status);
+    }
+    query += " ORDER BY s.id DESC LIMIT " + std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
         Logger::instance().error("Failed to find all submissions: " + std::string(mysql_error(conn)));
@@ -258,6 +265,10 @@ std::vector<Submission> Submission::findAll(int page, int pageSize) {
 }
 
 std::vector<Submission> Submission::findByUserId(int userId, int page, int pageSize) {
+    return findByUserId(userId, "", page, pageSize);
+}
+
+std::vector<Submission> Submission::findByUserId(int userId, const std::string& status, int page, int pageSize) {
     std::vector<Submission> submissions;
 
     MYSQL* conn = ConnectionPool::instance().getConnection();
@@ -267,7 +278,11 @@ std::vector<Submission> Submission::findByUserId(int userId, int page, int pageS
     }
 
     std::string query = "SELECT s.id, s.user_id, s.problem_id, s.code, s.language, s.status, s.queue_status, s.error_detail, s.execute_time_ms, s.execute_memory_kb, s.created_at, p.title FROM submissions s LEFT JOIN problems p ON s.problem_id = p.id WHERE s.user_id = " +
-                       std::to_string(userId) + " ORDER BY s.id DESC LIMIT " + std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
+                       std::to_string(userId);
+    if (!status.empty()) {
+        query += " AND s.status = " + escapeString(conn, status);
+    }
+    query += " ORDER BY s.id DESC LIMIT " + std::to_string((page - 1) * pageSize) + "," + std::to_string(pageSize);
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
         Logger::instance().error("Failed to find submissions by user id: " + std::string(mysql_error(conn)));
@@ -351,6 +366,10 @@ std::vector<Submission> Submission::findByProblemId(int problemId, int page, int
 }
 
 int Submission::countAll() {
+    return countAll("");
+}
+
+int Submission::countAll(const std::string& status) {
     MYSQL* conn = ConnectionPool::instance().getConnection();
     if (!conn) {
         Logger::instance().error("Failed to get database connection for Submission::countAll");
@@ -358,6 +377,9 @@ int Submission::countAll() {
     }
 
     std::string query = "SELECT COUNT(*) FROM submissions";
+    if (!status.empty()) {
+        query += " WHERE status = " + escapeString(conn, status);
+    }
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
         Logger::instance().error("Failed to count all submissions: " + std::string(mysql_error(conn)));
@@ -380,6 +402,10 @@ int Submission::countAll() {
 }
 
 int Submission::countByUserId(int userId) {
+    return countByUserId(userId, "");
+}
+
+int Submission::countByUserId(int userId, const std::string& status) {
     MYSQL* conn = ConnectionPool::instance().getConnection();
     if (!conn) {
         Logger::instance().error("Failed to get database connection for Submission::countByUserId");
@@ -387,6 +413,9 @@ int Submission::countByUserId(int userId) {
     }
 
     std::string query = "SELECT COUNT(*) FROM submissions WHERE user_id = " + std::to_string(userId);
+    if (!status.empty()) {
+        query += " AND status = " + escapeString(conn, status);
+    }
 
     if (mysql_real_query(conn, query.c_str(), query.size()) != 0) {
         Logger::instance().error("Failed to count submissions by user id: " + std::string(mysql_error(conn)));

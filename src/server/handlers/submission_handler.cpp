@@ -98,6 +98,7 @@ void handleListSubmissions(const httplib::Request& req, httplib::Response& res) 
 
     int page = 1;
     int pageSize = 20;
+    std::string status;
 
     if (auto it = req.params.find("page"); it != req.params.end()) {
         page = std::stoi(it->second);
@@ -108,17 +109,20 @@ void handleListSubmissions(const httplib::Request& req, httplib::Response& res) 
         if (pageSize < 1) pageSize = 20;
         if (pageSize > 100) pageSize = 100;
     }
+    if (auto it = req.params.find("status"); it != req.params.end()) {
+        status = it->second;
+    }
 
     User user = userOpt.value();
     std::vector<Submission> submissions;
     int total = 0;
 
     if (user.role == UserRole::Admin) {
-        submissions = Submission::findAll(page, pageSize);
-        total = Submission::countAll();
+        submissions = Submission::findAll(status, page, pageSize);
+        total = Submission::countAll(status);
     } else {
-        submissions = Submission::findByUserId(user.id, page, pageSize);
-        total = Submission::countByUserId(user.id);
+        submissions = Submission::findByUserId(user.id, status, page, pageSize);
+        total = Submission::countByUserId(user.id, status);
     }
 
     Json::Value result;

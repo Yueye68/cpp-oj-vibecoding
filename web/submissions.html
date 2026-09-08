@@ -334,7 +334,7 @@
             document.querySelectorAll('.status-filter-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.status === status);
             });
-            filterSubmissions();
+            loadSubmissions();
         }
 
         function viewSubmission(sub) {
@@ -356,7 +356,7 @@
             `;
 
             try {
-                const result = await api.submissions.list();
+                const result = await api.submissions.list({ status: currentStatusFilter });
                 if (result.error) {
                     container.innerHTML = `
                         <div class="error" style="text-align:center;padding:60px 20px;">
@@ -367,7 +367,7 @@
                 }
 
                 allSubmissions = result.submissions || [];
-                filterSubmissions();
+                renderSubmissions(allSubmissions);
             } catch (e) {
                 container.innerHTML = `
                     <div class="error" style="text-align:center;padding:60px 20px;">
@@ -379,9 +379,153 @@
 
         async function init() {
             const isLoggedIn = await checkAuth();
-            if (isLoggedIn) {
+            if (!isLoggedIn) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const submissionId = urlParams.get('id');
+
+            if (submissionId) {
+                await loadSubmissionDetail(submissionId);
+            } else {
                 loadSubmissions();
             }
+        }
+
+        async function loadSubmissionDetail(submissionId) {
+            const container = document.getElementById('submissions-container');
+            container.innerHTML = `
+                <div class="loading-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <p>加载中...</p>
+                </div>
+            `;
+            document.getElementById('pagination').innerHTML = '';
+            document.querySelector('.filters').style.display = 'none';
+
+            try {
+                const result = await api.submissions.get(submissionId);
+                if (result.error) {
+                    container.innerHTML = `
+                        <div class="error" style="text-align:center;padding:60px 20px;">
+                            <p>加载失败: ${result.error}</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                renderSubmissionDetail(result);
+            } catch (e) {
+                container.innerHTML = `
+                    <div class="error" style="text-align:center;padding:60px 20px;">
+                        <p>加载失败: ${e.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderSubmissionDetail(sub) {
+            const container = document.getElementById('submissions-container');
+            const statusClass = sub.status.toLowerCase();
+            const statusText = {
+                'AC': '答案正确',
+                'WA': '答案错误',
+                'CE': '编译错误',
+                'RE': '运行时错误',
+                'TLE': '超时',
+                'MLE': '内存超限',
+                'OLE': '输出超限',
+                'PE': '格式错误'
+            }[sub.status] || sub.status;
+
+            let errorHtml = '';
+            if (sub.error_detail) {
+                errorHtml = `
+                    <div style="margin-top:16px;padding:12px;background:var(--bg-secondary);border-radius:8px;">
+                        <div style="font-weight:600;margin-bottom:8px;">错误详情:</div>
+                        <pre style="white-space:pre-wrap;word-break:break-all;">${escapeHtml(sub.error_detail)}</pre>
+                    </div>
+                `;
+            }
+
+            let testResultsHtml = '';
+            if (sub.results && sub.results.length > 0) {
+                testResultsHtml = `
+                    <div style="margin-top:16px;">
+                        <div style="font-weight:600;margin-bottom:12px;">测试点结果:</div>
+                        ${sub.results.map((r, i) => `
+                            <div style="padding:12px;background:var(--bg-secondary);border-radius:8px;margin-bottom:8px;">
+                                <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                                    <span>测试点 ${i + 1}</span>
+                                    <span class="status-badge status-${r.status.toLowerCase()}">${r.status}</span>
+                                </div>
+                                <div style="font-size:0.875rem;color:var(--text-secondary);">
+                                    执行时间: ${r.execute_time_ms || 0}ms | 内存: ${r.execute_memory_kb || 0}KB
+                                </div>
+                                ${r.status !== 'AC' && r.expected_output ? `
+                                    <div style="margin-top:8px;font-size:0.875rem;">
+                                        <div style="color:var(--text-secondary);">期望输出:</div>
+                                        <pre style="background:var(--bg-primary);padding:8px;border-radius:4px;margin-top:4px;">${escapeHtml(r.expected_output)}</pre>
+                                        <div style="color:var(--text-secondary);margin-top:8px;">实际输出:</div>
+                                        <pre style="background:var(--bg-primary);padding:8px;border-radius:4px;margin-top:4px;">${escapeHtml(r.actual_output || '(空)')}</pre>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div style="max-width:900px;margin:0 auto;">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+                        <a href="submissions.html" style="color:var(--primary);text-decoration:none;display:flex;align-items:center;gap:4px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                            返回提交历史
+                        </a>
+                    </div>
+                    <div class="submission-card" style="cursor:default;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                            <div>
+                                <h2 style="margin:0 0 4px 0;">题目 #${sub.problem_id}</h2>
+                                <div style="color:var(--text-secondary);font-size:0.875rem;">${formatTime(sub.created_at)}</div>
+                            </div>
+                            <span class="status-badge status-${statusClass}">${sub.status} - ${statusText}</span>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px;padding:12px;background:var(--bg-secondary);border-radius:8px;">
+                            <div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">执行时间</div>
+                                <div style="font-weight:600;">${sub.execute_time_ms || 0} ms</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">内存占用</div>
+                                <div style="font-weight:600;">${sub.execute_memory_kb || 0} KB</div>
+                            </div>
+                            <div>
+                                <div style="font-size:0.75rem;color:var(--text-muted);">语言</div>
+                                <div style="font-weight:600;">${sub.language.toUpperCase()}</div>
+                            </div>
+                        </div>
+                        ${errorHtml}
+                        ${testResultsHtml}
+                        <div style="margin-top:16px;">
+                            <div style="font-weight:600;margin-bottom:8px;">提交代码:</div>
+                            <pre style="background:var(--bg-secondary);padding:16px;border-radius:8px;overflow-x:auto;font-family:monospace;font-size:0.875rem;white-space:pre;">${escapeHtml(sub.code)}</pre>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         init();
