@@ -6,19 +6,11 @@
     <title>题目管理 - C++ OJ</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
+        /* 第一行：标题独占一行 */
         .admin-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-
-        .page-title-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .page-title {
@@ -26,6 +18,16 @@
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
+            margin: 0;
+        }
+
+        /* 第二行：搜索框 + 新增按钮同一水平线 */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 12px;
         }
 
         .btn-primary {
@@ -84,26 +86,37 @@
             height: 15px;
         }
 
+        /* 编辑按钮：主色调（紫/蓝），不用黄色 */
         .btn-edit {
-            background: rgba(245, 158, 11, 0.15);
-            color: #F59E0B;
-            border: 1px solid rgba(245, 158, 11, 0.3);
+            background: rgba(139, 92, 246, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(139, 92, 246, 0.35);
         }
 
         .btn-edit:hover {
-            background: rgba(245, 158, 11, 0.25);
-            border-color: #F59E0B;
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
         }
 
+        /* 删除按钮：默认透明背景 + 红边框红字，hover 变红底白字 */
         .btn-delete {
-            background: rgba(239, 68, 68, 0.15);
+            background: transparent;
             color: var(--error);
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            border: 1px solid rgba(239, 68, 68, 0.45);
         }
 
         .btn-delete:hover {
-            background: rgba(239, 68, 68, 0.25);
+            background: var(--error);
+            color: #fff;
             border-color: var(--error);
+        }
+
+        /* 表格操作列：按钮尺寸与间距统一 */
+        .actions .btn-sm {
+            min-width: 56px;
+            text-align: center;
+            font-weight: 600;
         }
 
         .admin-table {
@@ -158,8 +171,9 @@
             gap: 8px;
         }
 
+        /* 搜索条 + 标题放在同一行；搜索条限定宽度，新增按钮贴右 */
         .search-bar {
-            margin-bottom: 20px;
+            margin-bottom: 0;
             display: flex;
             gap: 10px;
             align-items: center;
@@ -167,6 +181,9 @@
             border: 1px solid var(--border);
             border-radius: 10px;
             padding: 4px 4px 4px 16px;
+            width: 360px;
+            max-width: 360px;
+            flex: 0 0 360px;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
@@ -216,7 +233,7 @@
             border-radius: 12px;
             padding: 20px;
             display: flex;
-            align-items: center;
+            align-items: center;     /* 图标与数字垂直居中 */
             gap: 16px;
         }
 
@@ -227,6 +244,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .stat-icon svg {
@@ -254,20 +272,68 @@
             color: var(--error);
         }
 
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
         .stat-info h3 {
-            font-size: 1.5rem;
+            font-size: 1.85rem;       /* 数字字号加大 */
             font-weight: 700;
             color: var(--text-primary);
-            margin-bottom: 4px;
+            line-height: 1.1;
+            margin: 0 0 4px 0;
         }
 
         .stat-info p {
             font-size: 0.85rem;
             color: var(--text-muted);
+            margin: 0;
         }
 
         .table-container {
             overflow-x: auto;
+        }
+
+        /* 表格分类列：最多展示 2 个标签 + "+N"，鼠标悬浮展示全部 */
+        .tags-cell {
+            max-width: 180px;
+        }
+        .tag-list {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: nowrap;
+            overflow: hidden;
+        }
+        .tag-chip {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(139, 92, 246, 0.12);
+            color: var(--primary);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+        .tag-more {
+            display: inline-block;
+            padding: 2px 7px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: help;
+            white-space: nowrap;
+        }
+        .tag-more:hover {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--primary);
+            border-color: rgba(139, 92, 246, 0.3);
         }
     </style>
 </head>
@@ -348,27 +414,29 @@
             </div>
         </div>
 
+        <!-- 第一行：标题独占 -->
         <div class="admin-header">
-            <div class="page-title-group">
-                <h1 class="page-title">题目管理</h1>
+            <h1 class="page-title">题目管理</h1>
+        </div>
+
+        <!-- 第二行：搜索框 + 新增按钮同一水平线 -->
+        <div class="toolbar">
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="搜索题目标题...">
+                <button class="btn-icon" onclick="handleSearch()" title="搜索">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
             </div>
             <a href="/admin/problem_edit.html" class="btn-primary">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
-                新增
+                新增题目
             </a>
-        </div>
-
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="搜索题目标题...">
-            <button class="btn-icon" onclick="handleSearch()" title="搜索">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-            </button>
         </div>
 
         <div class="table-container">
@@ -445,14 +513,23 @@
             tbody.innerHTML = problems.map(p => {
                 const difficultyText = { easy: '简单', medium: '中等', hard: '困难' }[p.difficulty] || p.difficulty;
                 const difficultyClass = 'difficulty-' + p.difficulty;
-                const tagsText = (p.tags || []).join(', ');
+                const tags = p.tags || [];
+                const MAX_TAGS = 2;
+                const visibleTags = tags.slice(0, MAX_TAGS).map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`).join('');
+                const overflowCount = tags.length - MAX_TAGS;
+                const overflowHtml = overflowCount > 0
+                    ? `<span class="tag-more" title="${escapeHtml(tags.join(', '))}">+${overflowCount}</span>`
+                    : '';
+                const tagsCell = tags.length === 0
+                    ? '<span style="color: var(--text-muted);">-</span>'
+                    : `<div class="tag-list">${visibleTags}${overflowHtml}</div>`;
 
                 return `
                     <tr>
                         <td style="color: var(--primary); font-family: 'Space Grotesk', monospace; font-weight: 600;">#${p.id}</td>
                         <td><a href="/problem.html?id=${p.id}">${escapeHtml(p.title)}</a></td>
                         <td><span class="difficulty ${difficultyClass}">${difficultyText}</span></td>
-                        <td style="color: var(--text-secondary); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(tagsText) || '-'}</td>
+                        <td class="tags-cell">${tagsCell}</td>
                         <td style="color: var(--text-secondary); font-size: 0.85rem;">${p.time_limit_ms}ms<br>${p.memory_limit_mb}MB</td>
                         <td style="color: var(--text-secondary);"><span style="color: var(--accent);">${p.test_case_count}</span> 个</td>
                         <td class="actions">
