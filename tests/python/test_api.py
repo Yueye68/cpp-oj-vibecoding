@@ -329,9 +329,30 @@ class TestSubmissions:
         for sub in submissions:
             assert "queue_status" in sub
 
-    def test_get_submission_detail(self, regular_client):
-        resp = regular_client.get("/api/submissions/1")
-        assert resp.status_code in [200, 404]
+    def test_get_submission_detail(self, regular_client, problem_with_testcase):
+        if not problem_with_testcase:
+            pytest.skip("Problem not created")
+        create_resp = regular_client.post(
+            "/api/submissions",
+            json={
+                "problem_id": problem_with_testcase,
+                "code": "#include <bits/stdc++.h>\nusing namespace std;\nint main() { return 0; }",
+                "language": "cpp",
+            },
+        )
+        assert create_resp.status_code == 201
+        submission_id = create_resp.json().get("id")
+        assert submission_id is not None
+
+        resp = regular_client.get(f"/api/submissions/{submission_id}")
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data.get("id") == submission_id
+        assert data.get("problem_id") == problem_with_testcase
+        assert data.get("language") == "cpp"
+
+        missing_resp = regular_client.get("/api/submissions/99999999")
+        assert missing_resp.status_code == 404
 
 
 class TestEndToEnd:

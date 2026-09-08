@@ -262,6 +262,174 @@
             border-top: 1px solid var(--border);
         }
 
+        .testcase-notice {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            background: rgba(139, 92, 246, 0.06);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 10px;
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+
+        .testcase-notice svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            color: var(--primary);
+        }
+
+        .testcase-help {
+            margin-bottom: 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .testcase-help summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            user-select: none;
+            transition: color 0.2s ease, background 0.2s ease;
+        }
+
+        .testcase-help summary::-webkit-details-marker { display: none; }
+
+        .testcase-help summary::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-right: 2px solid var(--text-muted);
+            border-bottom: 2px solid var(--text-muted);
+            transform: rotate(-45deg);
+            margin-right: 4px;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .testcase-help[open] summary::before {
+            transform: rotate(45deg);
+        }
+
+        .testcase-help summary:hover {
+            color: var(--text-primary);
+            background: rgba(139, 92, 246, 0.04);
+        }
+
+        .testcase-help summary svg {
+            width: 16px;
+            height: 16px;
+            color: var(--primary);
+            margin-left: auto;
+        }
+
+        .testcase-help-body {
+            padding: 4px 18px 18px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            line-height: 1.7;
+        }
+
+        .testcase-help-body h5 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 14px 0 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .testcase-help-body h5::before {
+            content: '';
+            width: 3px;
+            height: 12px;
+            background: linear-gradient(180deg, var(--accent), var(--primary));
+            border-radius: 2px;
+        }
+
+        .testcase-help-body h5:first-child { margin-top: 8px; }
+
+        .testcase-help-body ul {
+            margin: 6px 0 0;
+            padding-left: 20px;
+        }
+
+        .testcase-help-body li { margin-bottom: 4px; }
+
+        .testcase-help-body code {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+        }
+
+        .testcase-help-body .example-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .testcase-help-body .example-pair > div {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .testcase-help-body .example-pair strong {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .testcase-help-body .example-pair pre {
+            margin: 0;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .testcase-help-body .verdict-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .testcase-help-body .verdict-legend span {
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-family: 'Space Grotesk', monospace;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .verdict-legend .AC { background: rgba(16,185,129,0.15); color: #10B981; border: 1px solid rgba(16,185,129,0.3); }
+        .verdict-legend .PE { background: rgba(139,92,246,0.15); color: var(--primary); border: 1px solid rgba(139,92,246,0.3); }
+        .verdict-legend .WA { background: rgba(239,68,68,0.15); color: var(--error); border: 1px solid rgba(239,68,68,0.3); }
+
         .testcase-upload {
             display: flex;
             gap: 16px;
@@ -272,6 +440,13 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             margin-bottom: 20px;
+            transition: opacity 0.2s ease;
+        }
+
+        .testcase-upload.disabled {
+            opacity: 0.45;
+            pointer-events: none;
+            filter: grayscale(0.3);
         }
 
         .testcase-upload .form-group {
@@ -394,6 +569,9 @@
                 flex-direction: column;
                 align-items: stretch;
             }
+            .testcase-help-body .example-pair {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -506,7 +684,7 @@
                 </div>
             </form>
 
-            <div class="testcase-section" id="testcase-section" style="display: none;">
+            <div class="testcase-section" id="testcase-section">
                 <div class="form-section-title">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -518,20 +696,80 @@
                     测试用例管理
                 </div>
 
-                <div class="testcase-upload">
+                <div class="testcase-notice" id="testcase-notice">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <span>请先填写上方题目信息并点击"保存题目"，保存成功后即可上传测试用例。</span>
+                </div>
+
+                <details class="testcase-help">
+                    <summary>
+                        测试用例文件格式说明
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                    </summary>
+                    <div class="testcase-help-body">
+                        <h5>文件本质</h5>
+                        <ul>
+                            <li><strong>输入文件</strong> = 选手 C++ 程序从 <code>stdin</code> 读到的全部字节</li>
+                            <li><strong>输出文件</strong> = 期望选手程序向 <code>stdout</code> 写出的全部字节</li>
+                            <li>推荐后缀：<code>.in</code> / <code>.out</code>（也支持 <code>.txt</code>，后端不限制扩展名）</li>
+                            <li>单文件 ≤ <strong>10 MB</strong>，每题 ≤ <strong>20</strong> 个用例</li>
+                        </ul>
+                        <h5>对比规则</h5>
+                        <ul>
+                            <li>两端的<strong>尾部空白</strong>（空格 / Tab / 换行）会被忽略</li>
+                            <li>逐行比较（每行各自去尾部空白后比对）</li>
+                            <li>"示例测试点"勾选仅做标记，<strong>不影响判题</strong>（所有用例都会跑）</li>
+                        </ul>
+                        <h5>判定结果</h5>
+                        <div class="verdict-legend">
+                            <span class="AC">AC</span>
+                            <span class="PE">PE</span>
+                            <span class="WA">WA</span>
+                        </div>
+                        <ul style="margin-top:6px;">
+                            <li><code>AC</code> 完全相同</li>
+                            <li><code>PE</code> 行内容一致但<strong>行数不同</strong>（格式错误）</li>
+                            <li><code>WA</code> 行内容不一致</li>
+                        </ul>
+                        <h5>示例</h5>
+                        <div class="example-pair">
+                            <div>
+                                <strong>INPUT (.in)</strong>
+                                <pre>3
+1 2 3
+4 5 6
+7 8 9</pre>
+                            </div>
+                            <div>
+                                <strong>OUTPUT (.out)</strong>
+                                <pre>45</pre>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <div class="testcase-upload disabled" id="testcase-upload">
                     <div class="form-group">
-                        <label for="input-file">输入文件</label>
-                        <input type="file" id="input-file" accept=".in,.txt,input/*">
+                        <label for="input-file">输入文件 (stdin 内容)</label>
+                        <input type="file" id="input-file" accept=".in,.txt,input/*" disabled>
                     </div>
                     <div class="form-group">
-                        <label for="output-file">输出文件</label>
-                        <input type="file" id="output-file" accept=".out,.txt,output/*">
+                        <label for="output-file">输出文件 (期望 stdout)</label>
+                        <input type="file" id="output-file" accept=".out,.txt,output/*" disabled>
                     </div>
                     <div class="form-group checkbox-group">
-                        <input type="checkbox" id="is-sample">
+                        <input type="checkbox" id="is-sample" disabled>
                         <label for="is-sample">示例测试点</label>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="uploadTestCase()">
+                    <button type="button" class="btn btn-primary" onclick="uploadTestCase()" disabled>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
@@ -577,7 +815,7 @@
             if (editProblemId) {
                 document.getElementById('page-title').textContent = '编辑题目 - C++ OJ 管理后台';
                 document.getElementById('form-title').textContent = '编辑题目';
-                document.getElementById('testcase-section').style.display = 'block';
+                enableTestCaseUpload();
                 await loadProblem(editProblemId);
                 await loadTestCases(editProblemId);
             } else {
@@ -586,6 +824,16 @@
                 initTagInput();
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('form-container').style.display = 'block';
+            }
+        }
+
+        function enableTestCaseUpload() {
+            const notice = document.getElementById('testcase-notice');
+            const upload = document.getElementById('testcase-upload');
+            if (notice) notice.style.display = 'none';
+            if (upload) {
+                upload.classList.remove('disabled');
+                upload.querySelectorAll('input, button').forEach(el => { el.disabled = false; });
             }
         }
 
@@ -786,6 +1034,7 @@
 
             try {
                 let result;
+                const isCreating = !editProblemId;
                 if (editProblemId) {
                     result = await api.problems.update(editProblemId, data);
                 } else {
@@ -806,16 +1055,15 @@
                     return;
                 }
 
-                if (!editProblemId && result.id) {
+                if (isCreating && result.id) {
                     editProblemId = result.id;
-                    document.getElementById('testcase-section').style.display = 'block';
+                    enableTestCaseUpload();
                     history.replaceState(null, '', '?id=' + editProblemId);
+                    document.getElementById('page-title').textContent = '编辑题目 - C++ OJ 管理后台';
+                    document.getElementById('form-title').textContent = '编辑题目';
                 }
 
-                alert(editProblemId ? '更新成功' : '创建成功');
-                if (!editProblemId) {
-                    window.location.href = '/admin/problems.html';
-                }
+                alert(isCreating ? '创建成功，可继续上传测试用例' : '更新成功');
             } catch (e) {
                 alert('保存失败: ' + e.message);
                 submitBtn.disabled = false;

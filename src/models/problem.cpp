@@ -4,6 +4,22 @@
 #include <regex>
 #include <cstring>
 
+static std::string escapeJsonString(const std::string& s) {
+    std::string out;
+    out.reserve(s.size());
+    for (char c : s) {
+        switch (c) {
+            case '"':  out += "\\\""; break;
+            case '\\': out += "\\\\"; break;
+            case '\n': out += "\\n";  break;
+            case '\r': out += "\\r";  break;
+            case '\t': out += "\\t";  break;
+            default:   out += c;      break;
+        }
+    }
+    return out;
+}
+
 std::string Problem::difficultyToString(Difficulty d) {
     switch (d) {
         case Difficulty::Easy: return "easy";
@@ -25,7 +41,7 @@ std::string Problem::tagsToJson(const std::vector<std::string>& tags) {
     oss << "[";
     for (size_t i = 0; i < tags.size(); ++i) {
         if (i > 0) oss << ",";
-        oss << "\"" << tags[i] << "\"";
+        oss << "\"" << escapeJsonString(tags[i]) << "\"";
     }
     oss << "]";
     return oss.str();
@@ -331,7 +347,7 @@ std::vector<Problem> Problem::findAll(int page, int pageSize, const std::string&
         query << " AND (";
         for (size_t i = 0; i < tags.size(); ++i) {
             if (i > 0) query << " OR ";
-            query << "JSON_CONTAINS(tags, '\"' || '" << tags[i] << "' || '\"')";
+            query << "JSON_CONTAINS(tags, '\"" << escapeJsonString(tags[i]) << "\"')";
         }
         query << ")";
     }
@@ -393,7 +409,7 @@ int Problem::count(const std::string& difficulty, const std::vector<std::string>
         query << " AND (";
         for (size_t i = 0; i < tags.size(); ++i) {
             if (i > 0) query << " OR ";
-            query << "JSON_CONTAINS(tags, '\"' || '" << tags[i] << "' || '\"')";
+            query << "JSON_CONTAINS(tags, '\"" << escapeJsonString(tags[i]) << "\"')";
         }
         query << ")";
     }
