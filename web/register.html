@@ -5,6 +5,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>注册 - C++ OJ System</title>
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .password-strength {
+            display: flex;
+            gap: 6px;
+            margin: 10px 0 12px;
+        }
+
+        .password-strength .seg {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border);
+            transition: background 0.25s ease;
+        }
+
+        .password-strength .seg.met {
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            box-shadow: 0 0 8px rgba(0, 255, 159, 0.4);
+        }
+
+        .password-requirements {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .password-requirements li {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s ease;
+        }
+
+        .password-requirements li::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            flex-shrink: 0;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .password-requirements li.met {
+            color: var(--success);
+        }
+
+        .password-requirements li.met::before {
+            background: var(--success);
+            box-shadow: 0 0 6px var(--success);
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -56,7 +113,7 @@
                 <div class="form-group">
                     <label for="password">密码</label>
                     <div class="input-wrapper">
-                        <input type="password" id="password" name="password" placeholder="至少6位字符" required autocomplete="new-password" minlength="6">
+                        <input type="password" id="password" name="password" placeholder="至少6位字符" required autocomplete="new-password" minlength="6" maxlength="64">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -68,6 +125,18 @@
                             </svg>
                         </button>
                     </div>
+                    <div class="password-strength" id="password-strength">
+                        <span class="seg" data-seg="0"></span>
+                        <span class="seg" data-seg="1"></span>
+                        <span class="seg" data-seg="2"></span>
+                        <span class="seg" data-seg="3"></span>
+                    </div>
+                    <ul class="password-requirements" id="password-requirements">
+                        <li data-rule="length">至少 6 位字符</li>
+                        <li data-rule="letter">包含字母</li>
+                        <li data-rule="digit">包含数字</li>
+                        <li data-rule="special">包含特殊字符</li>
+                    </ul>
                 </div>
 
                 <div class="form-group">
@@ -124,6 +193,33 @@
                 : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
             container.innerHTML = `<div class="alert alert-${type}">${iconSvg}<span>${message}</span></div>`;
         }
+
+        const PASSWORD_RULES = [
+            { id: 'length',  test: v => v.length >= 6 },
+            { id: 'letter',  test: v => /[a-zA-Z]/.test(v) },
+            { id: 'digit',   test: v => /\d/.test(v) },
+            { id: 'special', test: v => /[^a-zA-Z0-9_]/.test(v) }
+        ];
+
+        function updatePasswordStrength() {
+            const pw = document.getElementById('password').value;
+            const reqs = document.querySelectorAll('#password-requirements li');
+            const segs = document.querySelectorAll('#password-strength .seg');
+
+            let metCount = 0;
+            PASSWORD_RULES.forEach((rule, i) => {
+                const ok = rule.test(pw);
+                reqs[i].classList.toggle('met', ok);
+                if (ok) metCount++;
+            });
+
+            segs.forEach((seg, i) => {
+                seg.classList.toggle('met', i < metCount);
+            });
+        }
+
+        document.getElementById('password').addEventListener('input', updatePasswordStrength);
+        updatePasswordStrength();
 
         document.getElementById('register-form').addEventListener('submit', async function(e) {
             e.preventDefault();

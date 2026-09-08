@@ -872,7 +872,7 @@ int main() {
             try {
                 const result = await api.problems.get(problemId);
                 if (result.error) {
-                    showError(result.error);
+                    showError(translateError(result.error));
                     return;
                 }
 
@@ -881,7 +881,7 @@ int main() {
                 loadDraft();
                 startAutoSave();
             } catch (e) {
-                showError(e.message);
+                showError(translateError(e.message));
             }
         }
 
@@ -906,6 +906,16 @@ int main() {
                     <a href="problem_list.html" class="btn btn-primary" style="margin-top:20px;display:inline-flex;">返回题目列表</a>
                 </div>
             `;
+        }
+
+        function translateError(msg) {
+            if (!msg) return '未知错误';
+            const map = {
+                'Problem not found': '题目不存在',
+                'Failed to fetch': '网络连接失败，请检查网络后重试',
+                'NetworkError when attempting to fetch resource.': '网络连接失败，请检查网络后重试'
+            };
+            return map[msg] || msg;
         }
 
         function renderProblem(problem) {
@@ -1022,6 +1032,14 @@ int main() {
                 autofocus: true
             });
             editor.setSize(null, 350);
+
+            let pristine = true;
+            editor.on('change', () => { pristine = false; });
+            editor.on('focus', () => {
+                if (pristine) {
+                    editor.execCommand('selectAll');
+                }
+            });
         }
 
         function getEditorValue() {
