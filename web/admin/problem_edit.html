@@ -769,7 +769,7 @@
                         <input type="checkbox" id="is-sample" disabled>
                         <label for="is-sample">示例测试点</label>
                     </div>
-                    <button type="button" class="btn btn-primary" onclick="uploadTestCase()" disabled>
+                    <button type="button" class="btn btn-primary" onclick="handleUploadTestCase()" disabled>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
@@ -895,7 +895,7 @@
             `).join('');
         }
 
-        async function uploadTestCase() {
+        async function handleUploadTestCase() {
             if (!editProblemId) {
                 alert('请先保存题目后再上传测试用例');
                 return;
