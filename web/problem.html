@@ -357,58 +357,48 @@
 
         .draft-indicator.saved { color: var(--success); }
 
-        .result-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .result-modal-overlay.show {
-            display: flex;
-        }
-
-        .result-modal {
+        /* === 右侧测评结果面板（力扣风格，从底部向上展开） === */
+        .result-panel {
+            flex: 0 0 0;
+            min-height: 0;
             background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            width: 90%;
-            max-width: 560px;
-            max-height: 55vh;
-            display: flex;
-            flex-direction: column;
-            transform: translateY(20px);
-            transition: transform 0.3s ease;
+            border-top: 1px solid var(--border);
             overflow: hidden;
+            display: none;
+            flex-direction: column;
         }
 
-        .result-modal-overlay.show .result-modal {
-            transform: translateY(0);
+        .result-panel.show {
+            display: flex;
+            flex: 0 0 45%;
+            min-height: 180px;
+            max-height: 70%;
+            animation: panelSlideUp 0.25s ease;
         }
 
-        .result-modal-header {
+        @keyframes panelSlideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
+        .result-panel-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 14px 18px;
+            padding: 10px 14px;
             border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
+            flex: 0 0 auto;
+            background: var(--bg-secondary);
         }
 
-        .result-modal-header h3 {
-            font-size: 0.95rem;
+        .result-panel-header h3 {
+            font-size: 0.85rem;
             font-weight: 600;
             color: var(--text-primary);
             margin: 0;
         }
 
-        .result-modal-close {
+        .result-panel-close {
             background: none;
             border: none;
             color: var(--text-muted);
@@ -418,15 +408,27 @@
             border-radius: 4px;
         }
 
-        .result-modal-close:hover {
+        .result-panel-close:hover {
             color: var(--text-primary);
-            background: var(--bg-secondary);
+            background: var(--bg-input);
         }
 
-        .result-modal-body {
-            padding: 14px 18px;
+        .result-panel-body {
+            flex: 1 1 auto;
+            min-height: 0;
             overflow-y: auto;
-            flex: 1;
+            overflow-x: hidden;
+            padding: 12px 16px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
+        }
+
+        .result-panel-body::-webkit-scrollbar { width: 8px; }
+        .result-panel-body::-webkit-scrollbar-track { background: transparent; }
+        .result-panel-body::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
         }
 
         .result-status-badge {
@@ -564,21 +566,6 @@
         <div id="content"></div>
     </div>
 
-    <div class="result-modal-overlay" id="result-modal-overlay">
-        <div class="result-modal">
-            <div class="result-modal-header">
-                <h3>评测结果</h3>
-                <button class="result-modal-close" onclick="closeResultModal()">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="result-modal-body" id="result-modal-body"></div>
-        </div>
-    </div>
-
     <script src="/js/api.js"></script>
     <script src="/js/auth.js"></script>
     <script>
@@ -643,6 +630,24 @@ int main() {
                 </div>
             `;
 
+            let initialCode = null;
+            let viewOnly = false;
+            if (lastSubmissionId) {
+                try {
+                    const sub = await api.submissions.get(lastSubmissionId);
+                    if (sub && !sub.error && typeof sub.code === 'string') {
+                        initialCode = sub.code;
+                        viewOnly = true;
+                    } else if (sub && sub.error) {
+                        console.warn('Failed to load submission:', sub.error);
+                        lastSubmissionId = null;
+                    }
+                } catch (e) {
+                    console.warn('Failed to load submission code', e);
+                    lastSubmissionId = null;
+                }
+            }
+
             try {
                 const result = await api.problems.get(problemId);
                 if (result.error) {
@@ -650,10 +655,15 @@ int main() {
                     return;
                 }
 
-                renderProblem(result);
-                initEditor();
-                loadDraft();
-                startAutoSave();
+                renderProblem(result, { viewOnly });
+                initEditor(initialCode, viewOnly);
+                if (!viewOnly) {
+                    loadDraft();
+                    startAutoSave();
+                }
+                if (lastSubmissionId) {
+                    loadSubmissionResult(lastSubmissionId);
+                }
             } catch (e) {
                 showError(translateError(e.message));
             }
@@ -690,7 +700,8 @@ int main() {
             return map[msg] || msg;
         }
 
-        function renderProblem(problem) {
+        function renderProblem(problem, opts = {}) {
+            const viewOnly = !!opts.viewOnly;
             const difficultyClass = 'difficulty-' + problem.difficulty;
             const difficultyText = { easy: '简单', medium: '中等', hard: '困难' }[problem.difficulty] || problem.difficulty;
             const tagsHtml = (problem.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('');
@@ -711,6 +722,10 @@ int main() {
             }
 
             const descriptionHtml = problem.description ? marked.parse(problem.description) : '<p>暂无描述</p>';
+
+            const editorHeaderExtra = viewOnly
+                ? `<span class="view-only-tag" style="font-size:0.7rem;color:var(--warning);background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);padding:2px 8px;border-radius:4px;margin-left:8px;">查看历史提交（只读）</span>`
+                : '';
 
             document.getElementById('content').innerHTML = `
                 <div class="problem-detail">
@@ -734,10 +749,10 @@ int main() {
                     <div class="problem-right">
                         <div class="editor-box">
                             <div class="editor-header">
-                                <h3>代码编辑器</h3>
+                                <h3 style="display:flex;align-items:center;">代码编辑器${editorHeaderExtra}</h3>
                                 <span style="font-size:0.75rem;color:var(--text-muted);">C++ (g++ -O2)</span>
                             </div>
-                            ${!currentUser ? `
+                            ${(!currentUser && !viewOnly) ? `
                                 <div class="login-prompt">
                                     您当前未登录，可自由编辑代码；点击提交将跳转登录。<a href="login.html?redirect=${encodeURIComponent(window.location.href)}">立即登录</a>
                                 </div>
@@ -746,7 +761,7 @@ int main() {
                                 <textarea id="code-editor"></textarea>
                             </div>
                             <div class="editor-footer">
-                                <div class="draft-indicator" id="draft-indicator">
+                                <div class="draft-indicator" id="draft-indicator" ${viewOnly ? 'style="visibility:hidden;"' : ''}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;">
                                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                                         <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -754,7 +769,7 @@ int main() {
                                     </svg>
                                     <span id="draft-text">草稿已保存</span>
                                 </div>
-                                <button class="btn-submit" id="submit-btn" onclick="submitCode()">
+                                <button class="btn-submit" id="submit-btn" onclick="submitCode()" ${viewOnly ? 'style="display:none;"' : ''}>
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
                                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                                     </svg>
@@ -762,16 +777,25 @@ int main() {
                                 </button>
                             </div>
                         </div>
+                        <div class="result-panel" id="result-panel">
+                            <div class="result-panel-header">
+                                <h3>${viewOnly ? '历史提交评测结果' : '评测结果'}</h3>
+                                <button class="result-panel-close" onclick="closeResultPanel()" aria-label="收起结果面板">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="result-panel-body" id="result-panel-body"></div>
+                        </div>
                     </div>
                 </div>
             `;
-
-            if (lastSubmissionId) {
-                loadSubmissionResult(lastSubmissionId);
-            }
         }
 
-        function initEditor() {
+        function initEditor(initialCode, viewOnly) {
+            const code = (initialCode !== null && initialCode !== undefined) ? initialCode : DEFAULT_CODE;
             editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 mode: "text/x-c++src",
                 theme: "monokai",
@@ -781,16 +805,21 @@ int main() {
                 tabSize: 4,
                 indentWithTabs: false,
                 lineWrapping: true,
-                autofocus: true
+                autofocus: !viewOnly,
+                readOnly: !!viewOnly
             });
 
-            let pristine = true;
-            editor.on('change', () => { pristine = false; });
-            editor.on('focus', () => {
-                if (pristine) {
-                    editor.execCommand('selectAll');
-                }
-            });
+            editor.setValue(code, -1);
+
+            if (!viewOnly) {
+                let pristine = true;
+                editor.on('change', () => { pristine = false; });
+                editor.on('focus', () => {
+                    if (pristine) {
+                        editor.execCommand('selectAll');
+                    }
+                });
+            }
         }
 
         function getEditorValue() {
@@ -902,9 +931,26 @@ int main() {
 
         let submissionPollInterval = null;
 
-        function closeResultModal() {
-            const overlay = document.getElementById('result-modal-overlay');
-            if (overlay) overlay.classList.remove('show');
+        function refreshEditor() {
+            if (editor) {
+                requestAnimationFrame(() => editor.refresh());
+            }
+        }
+
+        function openResultPanel() {
+            const panel = document.getElementById('result-panel');
+            if (panel && !panel.classList.contains('show')) {
+                panel.classList.add('show');
+                refreshEditor();
+            }
+        }
+
+        function closeResultPanel() {
+            const panel = document.getElementById('result-panel');
+            if (panel) {
+                panel.classList.remove('show');
+                refreshEditor();
+            }
             if (submissionPollInterval) {
                 clearInterval(submissionPollInterval);
                 submissionPollInterval = null;
@@ -912,39 +958,37 @@ int main() {
         }
 
         async function loadSubmissionResult(submissionId) {
-            const modalBody = document.getElementById('result-modal-body');
-            const overlay = document.getElementById('result-modal-overlay');
-            if (!modalBody || !overlay) return;
+            const panelBody = document.getElementById('result-panel-body');
+            if (!panelBody) return;
 
             if (submissionPollInterval) {
                 clearInterval(submissionPollInterval);
                 submissionPollInterval = null;
             }
 
-            modalBody.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-secondary);">加载结果中...</div>';
-            overlay.classList.add('show');
+            openResultPanel();
+            panelBody.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-secondary);">加载结果中...</div>';
 
             async function pollResult() {
                 try {
                     const result = await api.submissions.get(submissionId);
                     if (result.error) {
-                        modalBody.innerHTML = '<div style="text-align:center;padding:30px;color:var(--error);">加载失败: ' + escapeHtml(result.error) + '</div>';
+                        panelBody.innerHTML = '<div style="text-align:center;padding:30px;color:var(--error);">加载失败: ' + escapeHtml(result.error) + '</div>';
                         if (submissionPollInterval) {
                             clearInterval(submissionPollInterval);
                             submissionPollInterval = null;
                         }
-                        setTimeout(closeResultModal, 2000);
                         return;
                     }
 
                     if (result.queue_status === 'completed' || (result.status !== 'pending' && result.status !== 'queued')) {
-                        renderResultModal(result);
+                        renderResultPanel(result);
                         if (submissionPollInterval) {
                             clearInterval(submissionPollInterval);
                             submissionPollInterval = null;
                         }
                     } else {
-                        modalBody.innerHTML = `
+                        panelBody.innerHTML = `
                             <div style="text-align:center;padding:30px;">
                                 <div style="color:var(--text-secondary);margin-bottom:12px;">正在等待判题队列处理，请稍候...</div>
                                 <div style="font-size:0.85rem;color:var(--text-muted);">状态: ${result.status} / ${result.queue_status}</div>
@@ -952,12 +996,11 @@ int main() {
                         `;
                     }
                 } catch (e) {
-                    modalBody.innerHTML = '<div style="text-align:center;padding:30px;color:var(--error);">加载失败: ' + escapeHtml(e.message) + '</div>';
+                    panelBody.innerHTML = '<div style="text-align:center;padding:30px;color:var(--error);">加载失败: ' + escapeHtml(e.message) + '</div>';
                     if (submissionPollInterval) {
                         clearInterval(submissionPollInterval);
                         submissionPollInterval = null;
                     }
-                    setTimeout(closeResultModal, 2000);
                 }
             }
 
@@ -965,9 +1008,9 @@ int main() {
             submissionPollInterval = setInterval(pollResult, 2000);
         }
 
-        function renderResultModal(submission) {
-            const modalBody = document.getElementById('result-modal-body');
-            if (!modalBody) return;
+        function renderResultPanel(submission) {
+            const panelBody = document.getElementById('result-panel-body');
+            if (!panelBody) return;
 
             const statusText = {
                 'AC': '答案正确', 'WA': '答案错误', 'CE': '编译错误',
@@ -987,9 +1030,11 @@ int main() {
 
             let testsHtml = '';
             if (submission.results && submission.results.length > 0) {
+                const passed = submission.results.filter(r => r.status === 'AC').length;
+                const total = submission.results.length;
                 testsHtml = `
                     <div class="result-modal-tests">
-                        <h4>测试点结果</h4>
+                        <h4>测试点结果 (${passed}/${total})</h4>
                         ${submission.results.map((r, i) => `
                             <div class="test-case-card">
                                 <div class="test-case-card-header">
@@ -1000,10 +1045,9 @@ int main() {
                                     <span>执行时间: ${r.execute_time_ms || 0}ms</span>
                                     <span>内存: ${r.execute_memory_kb || 0}KB</span>
                                 </div>
-                                ${r.status !== 'AC' && r.expected_output ? `
+                                ${r.status !== 'AC' && (r.expected_output || r.actual_output) ? `
                                     <div class="test-case-card-diff">
-                                        <div style="color:var(--text-secondary);">期望输出:</div>
-                                        <pre>${escapeHtml(r.expected_output)}</pre>
+                                        ${r.expected_output ? `<div style="color:var(--text-secondary);">期望输出:</div><pre>${escapeHtml(r.expected_output)}</pre>` : ''}
                                         <div style="color:var(--text-secondary);margin-top:6px;">实际输出:</div>
                                         <pre>${escapeHtml(r.actual_output || '(空)')}</pre>
                                     </div>
@@ -1014,7 +1058,7 @@ int main() {
                 `;
             }
 
-            modalBody.innerHTML = `
+            panelBody.innerHTML = `
                 <div style="text-align:center;margin-bottom:16px;">
                     <span class="result-status-badge ${submission.status}">${submission.status} - ${statusText}</span>
                 </div>
@@ -1051,10 +1095,6 @@ int main() {
         });
 
         checkAuth().then(() => loadProblem());
-
-        document.getElementById('result-modal-overlay').addEventListener('click', function(e) {
-            if (e.target === this) closeResultModal();
-        });
 
         const style = document.createElement('style');
         style.textContent = '@keyframes spin { to { transform: rotate(360deg); } } .spinner { animation: spin 1s linear infinite; }';
