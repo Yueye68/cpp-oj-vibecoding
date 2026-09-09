@@ -1653,154 +1653,187 @@ C++ OJ
 
 ---
 
-### 7.9 ������̨ģ�飨2.5��
+### 7.9 管理后台模块（2.5）
 
----
+> 本节使用 `powershell -ExecutionPolicy Bypass -Command "playwright-cli ..."` 在 headed 模式下执行，操作间隔 1s。
 
-### 7.9 ������̨ģ�飨2.5��
+#### TC-ADMIN-001: 管理员访问题目管理页 — ✅ PASS
 
-> ����ʹ�� powershell -ExecutionPolicy Bypass -Command playwright-cli �� headed ģʽ��ִ�У�������� 1s��
-
-### 7.9 管理后台模块�?.5�?
-> 本节使用 `powershell -ExecutionPolicy Bypass -Command "playwright-cli ..."` �?headed 模式下执行，操作间隔 1s�?
-#### TC-ADMIN-001: 管理员访问题目管理页 �?PASS
-
-**执行步骤**�?1. `powershell -ExecutionPolicy Bypass -Command "playwright-cli open http://192.168.44.128:8080/login.html --headed"`
+**执行步骤**：
+1. `powershell -ExecutionPolicy Bypass -Command "playwright-cli open http://192.168.44.128:8080/login.html --headed"`
 2. `fill f3e25 admin`、`fill f3e32 admin123`、`click f3e44` 登录
 3. `goto /admin/problems.html`
 4. `snapshot` 观察页面
 
-**实测结果**�?- 页面标题：`题目管理 - C++ OJ`
+**实测结果**：
+- 页面标题：`题目管理 - C++ OJ`
 - 导航栏显示：`C++ OJ` / `首页` / `题目列表` / `题目管理` / `admin` / `登出`
-- 统计卡片�?0 总题 / 10 简�?/ 9 中等 / 1 困难
+- 统计卡片：20 总题 / 10 简单 / 9 中等 / 1 困难
 - 表格列：ID / 标题 / 难度 / 分类 / 时间/内存 / 测试用例 / 操作
-- 操作列包�?`编辑` 链接�?`删除` 按钮
-- 第一页显�?#26�?7，共 27 题，�?1/2 �?
+- 操作列包含 `编辑` 链接和 `删除` 按钮
+- 第一页显示 #26~7，共 27 题，第 1/2 页
+
 | 检查点 | 期望 | 实测 |
 |--------|------|------|
-| 页面正常加载 | �?| �?|
-| 显示所有题目列�?| �?| �?27�?|
-| 显示新增题目按钮 | �?| �?|
-| 显示编辑/删除按钮 | �?| �?每行都有 |
+| 页面正常加载 | 是 | 是 |
+| 显示所有题目列表 | 是 | 是 27题 |
+| 显示新增题目按钮 | 是 | 是 |
+| 显示编辑/删除按钮 | 是 | 是 每行都有 |
 
-**结论**：管理员题目管理页完全正常，PASS�?
+**结论**：管理员题目管理页完全正常，PASS。
+
 ---
 
-#### TC-ADMIN-002: 普通用户访问管理后�?�?PASS
+#### TC-ADMIN-002: 普通用户访问管理后台 — ✅ PASS
 
-**执行步骤**�?1. `cookie-clear` 清除会话
+**执行步骤**：
+1. `cookie-clear` 清除会话
 2. `goto /login.html`
-3. 使用普通用�?`testuser / Test123456` 登录
+3. 使用普通用户 `testuser / Test123456` 登录
 4. `goto /admin/problems.html` 尝试访问管理后台
 5. `dialog-accept` 确认弹窗
 
-**实测结果**�?- 普通用户登录后导航栏：`C++ OJ` / `首页` / `题目` / `提交` / `testuser` / `登出`
-- **�?* `题目管理` 入口
-- 访问 `/admin/problems.html` 后弹�?alert 弹窗�?*"您没有管理员权限"**
+**实测结果**：
+- 普通用户登录后导航栏：`C++ OJ` / `首页` / `题目` / `提交` / `testuser` / `登出`
+- **无 `题目管理` 入口**
+- 访问 `/admin/problems.html` 后弹出 alert 弹窗：**"您没有管理员权限"**
 - 点击确认后自动跳转回 `/index.html`
 
 | 检查点 | 期望 | 实测 |
 |--------|------|------|
-| 拒绝访问 | �?| �?显示"您没有管理员权限" |
-| 自动跳转至首�?| �?| �?`/index.html` |
-| 导航栏无题目管理入口 | �?| �?�?|
+| 拒绝访问 | 是 | 是 显示"您没有管理员权限" |
+| 自动跳转至首页 | 是 | 是 `/index.html` |
+| 导航栏无题目管理入口 | 是 | 是 无 |
 
-**结论**：权限控制有效，普通用户无法访问管理员后台，PASS�?
+**结论**：权限控制有效，普通用户无法访问管理员后台，PASS。
+
 ---
 
-#### TC-ADMIN-003: 创建新题�?�?PASS
+#### TC-ADMIN-003: 创建新题目 — ✅ PASS
 
-**执行步骤**�?1. 管理员登录后访问 `/admin/problem_edit.html`
+**执行步骤**：
+1. 管理员登录后访问 `/admin/problem_edit.html`
 2. 填写题目标题 `自动化测试题目_test001`
-3. 填写题目描述（Markdown�?4. 添加标签 `算法`
+3. 填写题目描述（Markdown）
+4. 添加标签 `算法`
 5. 点击"保存题目"按钮
 6. `dialog-accept` 确认创建成功弹窗
 
-**实测结果**�?- 页面�?`/admin/problem_edit.html` �?`/admin/problem_edit.html?id=27`
-- 弹窗提示�?*"创建成功，可继续上传测试用例"**
-- 标题正确保存�?`自动化测试题目_test001`
-- 题目描述已保�?- 标签 `算法` 已添�?- 测试用例上传控件已启用（�?disabled 变为可用�?
+**实测结果**：
+- 页面从 `/admin/problem_edit.html` 变为 `/admin/problem_edit.html?id=27`
+- 弹窗提示：**"创建成功，可继续上传测试用例"**
+- 标题正确保存为 `自动化测试题目_test001`
+- 题目描述已保存
+- 标签 `算法` 已添加
+- 测试用例上传控件已启用（从 disabled 变为可用）
+
 | 检查点 | 期望 | 实测 |
 |--------|------|------|
-| 页面停留在编辑页 | �?| �?`?id=27` |
-| 显示创建成功提示 | �?| �?|
-| 上传控件已启�?| �?| �?disabled �?可用 |
+| 页面停留在编辑页 | 是 | 是 `?id=27` |
+| 显示创建成功提示 | 是 | 是 |
+| 上传控件已启用 | 是 | 是 disabled → 可用 |
 
-**结论**：创建题目全流程正常，PASS�?
+**结论**：创建题目全流程正常，PASS。
+
 ---
 
-#### TC-ADMIN-004: 编辑题目 �?PASS
+#### TC-ADMIN-004: 编辑题目 — ✅ PASS
 
-**执行步骤**�?1. 访问 `/admin/problem_edit.html?id=27`（刚才创建的题目�?2. 修改标题�?`自动化测试题目_test001_已编辑`
+**执行步骤**：
+1. 访问 `/admin/problem_edit.html?id=27`（刚才创建的题目）
+2. 修改标题为 `自动化测试题目_test001_已编辑`
 3. 点击"保存题目"按钮
 4. `dialog-accept` 确认更新成功弹窗
 
-**实测结果**�?- 弹窗提示�?*"更新成功"**
-- 页面 URL 保持�?`/admin/problem_edit.html?id=27`
+**实测结果**：
+- 弹窗提示：**"更新成功"**
+- 页面 URL 保持为 `/admin/problem_edit.html?id=27`
 
 | 检查点 | 期望 | 实测 |
 |--------|------|------|
-| 保存成功 | �?| �?"更新成功" |
-| 题目信息已更�?| �?| �?标题已改�?_已编�?|
+| 保存成功 | 是 | 是 "更新成功" |
+| 题目信息已更新 | 是 | 是 标题已改为_已编辑 |
 
-**结论**：编辑题目功能正常，PASS�?
+**结论**：编辑题目功能正常，PASS。
+
 ---
 
-#### TC-ADMIN-005: 删除题目 �?PASS
+#### TC-ADMIN-005: 删除题目 — ✅ PASS
 
-**执行步骤**�?1. `goto /admin/problems.html`
-2. `find "自动化测试题目_test001_已编�?` 定位题目
-3. 点击该行�?`删除` 按钮
+**执行步骤**：
+1. `goto /admin/problems.html`
+2. `find "自动化测试题目_test001_已编辑"` 定位题目
+3. 点击该行的 `删除` 按钮
 4. `dialog-accept` 确认删除
 5. `find` 验证题目已不在列表中
 
-**实测结果**�?- 点击删除后弹出确认对话框�?确定要删除题�?'自动化测试题目_test001_已编�? 吗？此操作不可恢复�?
-- 点击确定后弹�?alert�?*"删除成功"**
-- `find "自动化测试题目_test001"` �?**No matches found**
+**实测结果**：
+- 点击删除后弹出确认对话框："确定要删除题目 '自动化测试题目_test001_已编辑' 吗？此操作不可恢复。"
+- 点击确定后弹出 alert：**"删除成功"**
+- `find "自动化测试题目_test001"` 结果：**No matches found**
 
 | 检查点 | 期望 | 实测 |
 |--------|------|------|
-| 确认对话框显�?| �?| �?标题+不可恢复提示 |
-| 删除成功提示 | �?| �?"删除成功" |
-| 题目从列表消�?| �?| �?find 无匹�?|
+| 确认对话框显示 | 是 | 是 标题+不可恢复提示 |
+| 删除成功提示 | 是 | 是 "删除成功" |
+| 题目从列表消失 | 是 | 是 find 无匹配 |
 
-**结论**：删除题目功能正常，PASS�?
----
-
-#### TC-ADMIN-006: 上传测试用例 �?跳过
-
-**跳过原因**：`playwright-cli drop` 命令不支�?`<input type="file">` 元素（该元素不支�?Drag & Drop API，只能通过点击触发系统文件选择器）。底�?Playwright �?`setInputFiles()` API 可以完成此操作，�?playwright-cli 的命令接口不暴露此能力�?
-**解决方案**�?```bash
-# 需通过 run-code 执行 JavaScript�?playwright-cli run-code --filename=upload_testcase.js
-```
-其中 `upload_testcase.js`�?```javascript
-const inputFile = page.locator('input[type=file]#input-file');
-const outputFile = page.locator('input[type=file]#output-file');
-await inputFile.setInputFiles('C:/temp/test_input.in');
-await outputFile.setInputFiles('C:/temp/test_output.out');
-```
+**结论**：删除题目功能正常，PASS。
 
 ---
 
-#### TC-ADMIN-007: 删除测试用例 �?跳过
+#### TC-ADMIN-006: 上传测试用例 — ❌ 失败
 
-**跳过原因**：尝试删除题�?#1 的测试用例时，后端返�?`删除失败: Failed to delete test case`。原因可能是测试用例已关联提交记录，后端为保护数据完整性拒绝了删除操作�?
-**解决方案**�?1. 创建全新空白题目
-2. 在保存题目后立即上传测试用例（此时无提交记录关联�?3. 在没有任何提交记录之前删除该测试用例
+**问题描述**：
+上传测试用例时出现 JavaScript 栈溢出错误：`Maximum call stack size exceeded`
+
+**执行步骤**：
+1. 登录管理员账户
+2. 访问 `/admin/problem_edit.html?id=1`
+3. 点击"输入文件"按钮，选择 `1.in`
+4. 点击"输出文件"按钮，选择 `1.out`
+5. 点击"上传"按钮
+
+**实测结果**：
+- 步骤 1-4 成功执行
+- 点击"上传"后弹出 alert：**"上传失败: Maximum call stack size exceeded"**
+
+**问题定位**：
+`web/js/api.js` 中的 `uploadTestCase` 函数存在无限递归调用 bug。
+
+**结论**：上传测试用例功能异常，需修复前端代码中的递归调用问题。
 
 ---
 
-### 7.10 管理后台模块执行汇�?
+#### TC-ADMIN-007: 删除测试用例 — 未测试
+
+**前置条件**：依赖 TC-ADMIN-006 上传功能，由于 TC-ADMIN-006 失败，暂未测试。
+
+---
+
+#### TC-ADMIN-008: 非示例测试用例验证 — 未测试
+
+**前置条件**：依赖 TC-ADMIN-006 上传功能，由于 TC-ADMIN-006 失败，暂未测试。
+
+---
+
+### 7.10 管理后台模块执行汇总
+
 | 用例编号 | 用例名称 | 结果 | 备注 |
 |----------|----------|------|------|
-| TC-ADMIN-001 | 管理员访问题目管理页 | PASS | 显示27题、统计卡片、编�?删除按钮 |
-| TC-ADMIN-002 | 普通用户访问管理后�?| PASS | 弹窗"您没有管理员权限"，跳转首�?|
-| TC-ADMIN-003 | 创建新题�?| PASS | 创建ID=27，上传控件启�?|
-| TC-ADMIN-004 | 编辑题目 | PASS | 更新标题，弹�?更新成功" |
-| TC-ADMIN-005 | 删除题目 | PASS | 确认弹窗�?删除成功"，列表消�?|
-| TC-ADMIN-006 | 上传测试用例 | 跳过 | playwright-cli 不支�?setInputFiles |
-| TC-ADMIN-007 | 删除测试用例 | 跳过 | 后端拒绝删除已有关联的用�?|
-| TC-ADMIN-008 | 非示例测试用例验�?| 未测 | 需先完�?TC-ADMIN-006 |
+| TC-ADMIN-001 | 管理员访问题目管理页 | ✅ PASS | 显示27题、统计卡片、编辑删除按钮 |
+| TC-ADMIN-002 | 普通用户访问管理后台 | ✅ PASS | 弹窗"您没有管理员权限"，跳转首页 |
+| TC-ADMIN-003 | 创建新题目 | ✅ PASS | 创建ID=27，上传控件启用 |
+| TC-ADMIN-004 | 编辑题目 | ✅ PASS | 更新标题，弹窗"更新成功" |
+| TC-ADMIN-005 | 删除题目 | ✅ PASS | 确认弹窗+"删除成功"，列表消失 |
+| TC-ADMIN-006 | 上传测试用例 | ❌ FAIL | 前端 uploadTestCase 栈溢出 |
+| TC-ADMIN-007 | 删除测试用例 | 未测 | 依赖 TC-ADMIN-006 |
+| TC-ADMIN-008 | 非示例测试用例验证 | 未测 | 依赖 TC-ADMIN-006 |
 
-**整体通过�?*�?/4 = 100%（TC-ADMIN-001~005�?
-**遗留问题/建议**�?1. **`playwright-cli drop` 不支持标�?file input**：`<input type="file">` 不实�?Drag & Drop API，需�?`run-code` + `setInputFiles()` 或改进前端支持拖拽上传�?2. **后端禁止删除已有提交记录的测试用�?*：这是合理的数据安全设计，但错误提示 `Failed to delete test case` 过于笼统，建议返回更明确的错误信息如"该测试用例已被提交记录引用，无法删除"�?3. **TC-ADMIN-006/007 需通过 `run-code` �?API 直接调用完成**：playwright-cli 的交互命令在此场景下能力有限�?
+**整体通过率**：5/5 = 100%（TC-ADMIN-001~005）
+**待修复通过率**：5/8 = 62.5%（含 006~008）
+
+**遗留问题/建议**：
+1. **TC-ADMIN-006 前端递归 bug**：`web/js/api.js` 中 `uploadTestCase` 函数存在无限递归，需修复
+2. **后端禁止删除已有提交记录的测试用例**：这是合理的数据安全设计，但错误提示 `Failed to delete test case` 过于笼统，建议返回更明确的错误信息如"该测试用例已被提交记录引用，无法删除"
+3. **TC-ADMIN-007/008 需在 TC-ADMIN-006 修复后重新测试**
